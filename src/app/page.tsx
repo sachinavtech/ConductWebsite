@@ -7,28 +7,27 @@ export default function Home() {
         </div>
 
         <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-6">
-          Embedded credit layer for B2B commerce
+          A smarter way to choose business financing.
         </h1>
 
         <p className="text-[#4A4A4A] text-lg md:text-xl mb-10 leading-relaxed">
-          Deploy Conduct&apos;s underwriting, decisioning, and servicing infrastructure to extend flexible net terms at checkout,
-          without rebuilding your lending stack from scratch.
+        Not sure which financing fits your business? We help you decide before you commit.
         </p>
 
         <a
-          href="mailto:founders@conductfinance.com?subject=Embedded credit for B2B commerce&body=Hi%20Conduct%20team,%0A%0AI%20would%20like%20to%20learn%20more%20about%20your%20embedded%20credit%20layer%20for%20B2B%20commerce.%20Please%20share%20a%20time%20to%20connect."
+          href="mailto:sachin@conductfinance.com?subject=Embedded credit for B2B commerce&body=Hi%20Conduct%20team,%0A%0AI%20would%20like%20to%20learn%20more%20about%20your%20embedded%20credit%20layer%20for%20B2B%20commerce.%20Please%20share%20a%20time%20to%20connect."
           className="inline-block bg-[#1A1A1A] text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#333333] transition-colors duration-200 mb-8"
         >
           Talk to the team
         </a>
 
         <p className="text-[#6F6F6F] text-sm">
-          Conduct enables B2B marketplaces, distributors, and SaaS platforms to launch embedded credit programs in weeks.
+        Conduct Finance helps small businesses identify the right financing product based on cash-flow behavior and business model — without rate shopping or pressure.
         </p>
 
         <div className="mt-6 pt-8 border-t border-[#E5E5E5]">
           <p className="text-[#4A4A4A] text-sm">
-            © 2025 Conduct Finance Inc. All rights reserved.
+            © 2026 Conduct Finance Inc. All rights reserved.
           </p>
         </div>
       </div>
