@@ -148,10 +148,15 @@ export default function RootLayout({
         {/* Performance Optimization */}
         <link rel="preload" href="https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
-      <body
-        className={`${inter.variable} antialiased`}
-      >
-        {children}
+      <body className={`${inter.variable} antialiased`}>
+        <div className="min-h-screen flex flex-col">
+          <div className="flex-1">{children}</div>
+          <footer className="border-t border-[#E5E5E5]">
+            <div className="max-w-5xl mx-auto px-6 py-8 text-center">
+              <p className="text-[#4A4A4A] text-sm">© 2026 Conduct Finance Inc. All rights reserved.</p>
+            </div>
+          </footer>
+        </div>
       </body>
     </html>
   );
