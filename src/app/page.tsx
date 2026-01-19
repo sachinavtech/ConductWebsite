@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="flex items-center justify-center bg-white text-[#1A1A1A]">
+    <main className="flex items-center justify-center min-h-screen bg-white text-[#1A1A1A] py-12">
       <div className="text-center max-w-2xl mx-auto px-6">
         <div className="mb-4">
           <img src="/logo.svg" alt="Conduct Logo" className="w-40 md:w-48 mx-auto mb-16" />
@@ -12,7 +12,7 @@ export default function Home() {
           A smarter way to choose business financing.
         </h1>
 
-        <p className="text-[#4A4A4A] text-lg md:text-xl mb-8 leading-relaxed">
+        <p className="text-[#4A4A4A] text-lg md:text-xl mb-10 leading-relaxed">
           Not sure which financing fits your business? We help you decide before you commit.
         </p>
 
@@ -31,7 +31,7 @@ export default function Home() {
           </a>
         </div>
 
-        <p className="text-[#6F6F6F] text-sm mb-12">
+        <p className="text-[#6F6F6F] text-sm">
           Conduct Finance helps small businesses identify the right financing product based on cash-flow behavior and business model — without rate shopping or pressure.
         </p>
       </div>
