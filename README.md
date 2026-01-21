@@ -88,10 +88,36 @@ Vercel will automatically use the following settings for Next.js:
 
 ### Environment Variables
 
+#### Supabase Configuration
+
+The questionnaire feature requires Supabase configuration. Create a `.env.local` file in the root directory with the following variables:
+
+```bash
+# Supabase Configuration
+# Get these values from: https://supabase.com/dashboard/project/YOUR_PROJECT/settings/api
+
+# Project URL (format: https://<project-ref-id>.supabase.co)
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+
+# Anon/Public Key (for client-side operations)
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
+
+# Service Role Key (for server-side operations - keep this secret!)
+SUPABASE_SERVICE_KEY=your_service_role_key_here
+```
+
+**Important Notes:**
+- The `SUPABASE_URL` should use your project's **reference ID** (a random string), not the project name
+- Get your keys from: Supabase Dashboard > Settings > API
+- The `SUPABASE_SERVICE_KEY` should only be used in API routes and never exposed to the client
+
+#### Vercel Environment Variables
+
 If your site requires environment variables, you can add them in the Vercel dashboard:
 1. Go to your project settings
 2. Navigate to "Environment Variables"
 3. Add your variables for Production, Preview, and Development environments
+4. Make sure to add all three Supabase variables listed above
 
 ### Custom Domain
 
