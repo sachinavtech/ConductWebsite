@@ -111,6 +111,20 @@ SUPABASE_SERVICE_KEY=your_service_role_key_here
 - Get your keys from: Supabase Dashboard > Settings > API
 - The `SUPABASE_SERVICE_KEY` should only be used in API routes and never exposed to the client
 
+#### Google Tag Manager Configuration
+
+Analytics tracking requires a GTM Container ID. Add to `.env.local`:
+
+```bash
+# Google Tag Manager Container ID
+NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX
+```
+
+**Important Notes:**
+- Replace `GTM-XXXXXXX` with your actual GTM Container ID
+- Get your Container ID from: [Google Tag Manager](https://tagmanager.google.com/)
+- See `ANALYTICS_SETUP.md` for detailed GTM configuration instructions
+
 #### Vercel Environment Variables
 
 If your site requires environment variables, you can add them in the Vercel dashboard:

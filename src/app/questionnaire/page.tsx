@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { trackPrequalStart, trackStepCompletion, trackCompletion } from "@/lib/analytics";
 
 interface Question {
   section: string;
@@ -344,6 +345,11 @@ export default function Questionnaire() {
   const sectionQuestions = QUESTIONS.filter(q => q.section === currentSectionName);
   const progress = ((currentSection + 1) / SECTIONS.length) * 100;
 
+  // Track prequal start on mount
+  useEffect(() => {
+    trackPrequalStart();
+  }, []);
+
   const handleInputChange = (fieldName: string, value: string) => {
     setAnswers(prev => ({ ...prev, [fieldName]: value }));
   };
@@ -372,6 +378,8 @@ export default function Questionnaire() {
 
   const handleNext = () => {
     if (isSectionComplete() && currentSection < SECTIONS.length - 1) {
+      // Track step completion before moving to next section
+      trackStepCompletion(currentSection + 1, currentSectionName);
       setCurrentSection(prev => prev + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -411,6 +419,8 @@ export default function Questionnaire() {
         throw new Error(data.error || 'Failed to submit questionnaire');
       }
 
+      // Track questionnaire completion
+      trackCompletion(answers);
       setSubmitted(true);
     } catch (error) {
       console.error("Error submitting questionnaire:", error);

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Analytics from "@/components/Analytics";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -76,7 +77,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* App Icons */}
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -94,6 +95,22 @@ export default function RootLayout({
         {/* DNS Prefetch for common external resources */}
         <link rel="dns-prefetch" href="//www.google-analytics.com" />
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
+        
+        {/* Google Tag Manager */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+            `,
+          }}
+        />
+        {/* GTM Container ID - Replace GTM-XXXXXXX with your actual GTM container ID */}
+        {process.env.NEXT_PUBLIC_GTM_ID && (
+          <script
+            async
+            src={`https://www.googletagmanager.com/gtm.js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
+          />
+        )}
         
         {/* Security Headers */}
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -145,10 +162,22 @@ export default function RootLayout({
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
         
-        {/* Performance Optimization */}
-        <link rel="preload" href="https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        {/* Performance Optimization - Removed font preload to avoid unused resource warning */}
       </head>
       <body className={`${inter.variable} antialiased`}>
+        {/* Google Tag Manager (noscript) */}
+        {process.env.NEXT_PUBLIC_GTM_ID && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
+              height="0"
+              width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
+            />
+          </noscript>
+        )}
+        
+        <Analytics />
         <div className="min-h-screen flex flex-col">
           <div className="flex-1">{children}</div>
           <footer className="border-t border-[#E5E5E5]">

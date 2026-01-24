@@ -1,6 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { trackPrequalStart } from "@/lib/analytics";
 
 export default function Home() {
+  const handleQuestionnaireClick = () => {
+    trackPrequalStart();
+  };
   return (
     <main className="flex items-center justify-center min-h-screen bg-white text-[#1A1A1A] py-12">
       <div className="text-center max-w-2xl mx-auto px-6">
@@ -19,6 +25,7 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-10">
           <Link
             href="/questionnaire"
+            onClick={handleQuestionnaireClick}
             className="inline-block bg-[#1A1A1A] text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#333333] transition-colors duration-200"
           >
             Start Questionnaire
