@@ -613,7 +613,7 @@ export default function Questionnaire() {
         {/* Page Title */}
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-semibold mb-2">
-            Conduct Finance Lending Match
+            The Smart Path to Business Capital.
           </h1>
           <p className="text-[#4A4A4A] text-lg">
             Tell us about your business to get matched with the right lender

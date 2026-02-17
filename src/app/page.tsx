@@ -20,7 +20,7 @@ export default function Home() {
       <section className="flex items-center justify-center min-h-[50vh] py-8">
         <div className="text-center max-w-3xl mx-auto px-6">
           <h1 className="text-5xl md:text-6xl font-semibold leading-tight tracking-tight mb-6">
-            Conduct Finance Lending Match
+            The Smart Path to Business Capital.
           </h1>
 
           <p className="text-[#4A4A4A] text-xl md:text-2xl mb-8 leading-relaxed max-w-2xl mx-auto">
@@ -107,7 +107,7 @@ export default function Home() {
       <section className="py-20">
         <div className="max-w-5xl mx-auto px-6">
           <h2 className="text-4xl md:text-5xl font-semibold text-center mb-16">
-            Why use Conduct Finance Lending Match?
+            Why use our matching service?
           </h2>
           
           <div className="grid md:grid-cols-2 gap-12">
@@ -139,6 +139,24 @@ export default function Home() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Footer CTA for Lenders */}
+      <section className="py-20 bg-[#1A1A1A] text-white">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-semibold mb-6">
+            Ready to upgrade your deal flow?
+          </h2>
+          <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
+            Integrate our scoring engine into your existing underwriting workflow or receive pre-scored leads directly to your CRM.
+          </p>
+          <a
+            href="mailto:sachin@conductfinance.com?subject=Lender Partnership Inquiry&body=Hi%20Conduct%20team,%0A%0AI%20would%20like%20to%20learn%20more%20about%20integrating%20your%20scoring%20engine%20or%20receiving%20pre-scored%20leads.%20Please%20share%20a%20time%20to%20connect."
+            className="inline-block bg-white text-[#1A1A1A] px-10 py-4 rounded-lg text-lg font-medium hover:bg-gray-200 transition-colors duration-200"
+          >
+            Get Started
+          </a>
         </div>
       </section>
     </main>
