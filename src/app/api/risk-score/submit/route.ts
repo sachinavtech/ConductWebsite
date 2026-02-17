@@ -5,7 +5,7 @@ import { sendRiskScoreNotification } from '@/lib/email';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || '';
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     if (!supabaseUrl || !supabaseServiceKey) {
       return NextResponse.json(

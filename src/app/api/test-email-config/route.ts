@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
  * Test endpoint to check if RESEND_API_KEY is configured
  * Visit: http://localhost:3000/api/test-email-config
  */
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   const hasKey = !!process.env.RESEND_API_KEY;
   const keyStartsWithRe = process.env.RESEND_API_KEY?.startsWith('re_') || false;
   const keyLength = process.env.RESEND_API_KEY?.length || 0;

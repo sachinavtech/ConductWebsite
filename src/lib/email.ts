@@ -123,7 +123,7 @@ export async function sendEmailNotification(
     });
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json() as { message?: string; error?: string };
       const errorMsg = `Resend API error: ${JSON.stringify(error)}`;
       console.error('='.repeat(80));
       console.error('EMAIL NOTIFICATION FAILED:', errorMsg);
