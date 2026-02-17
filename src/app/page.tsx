@@ -92,6 +92,12 @@ export default function Home() {
               >
                 Get Matched
               </Link>
+              <Link
+                href="/risk-score"
+                className="inline-block border-2 border-[#1A1A1A] text-[#1A1A1A] px-10 py-4 rounded-lg text-lg font-medium hover:bg-[#1A1A1A] hover:text-white transition-colors duration-200"
+              >
+                Check Your Conduct Risk Score
+              </Link>
               <a
                 href="mailto:sachin@conductfinance.com?subject=Embedded credit for B2B commerce&body=Hi%20Conduct%20team,%0A%0AI%20would%20like%20to%20learn%20more%20about%20your%20embedded%20credit%20layer%20for%20B2B%20commerce.%20Please%20share%20a%20time%20to%20connect."
                 className="inline-block border-2 border-[#1A1A1A] text-[#1A1A1A] px-10 py-4 rounded-lg text-lg font-medium hover:bg-[#1A1A1A] hover:text-white transition-colors duration-200"

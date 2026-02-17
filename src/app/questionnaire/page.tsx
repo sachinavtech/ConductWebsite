@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { trackPrequalStart, trackStepCompletion, trackCompletion, trackPrequalAbandon, trackRoutingResult, trackLenderClick } from "@/lib/analytics";
-import { matchPartner, getPartnerInfo, type MatchingResult } from "@/lib/partnerMatching";
+import { trackPrequalStart, trackStepCompletion, trackCompletion, trackPrequalAbandon, trackRoutingResult } from "@/lib/analytics";
+import { matchPartner, type MatchingResult } from "@/lib/partnerMatching";
 
 interface Question {
   section: string;
@@ -495,7 +495,7 @@ export default function Questionnaire() {
   };
 
   if (submitted) {
-    const partnerInfo = matchingResult?.partner ? getPartnerInfo(matchingResult.partner) : null;
+    const hasMatch = matchingResult?.partner !== null;
 
     return (
       <main className="flex items-center justify-center min-h-screen bg-white text-[#1A1A1A] py-12">
@@ -507,71 +507,37 @@ export default function Questionnaire() {
           </div>
           
           <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-6">
-            Your Match is Ready!
+            {hasMatch ? "We Found a Match!" : "Thank You!"}
           </h1>
 
-          {matchingResult?.partner && partnerInfo ? (
-            <div className="text-left mb-10">
+          {hasMatch ? (
+            <div className="mb-10">
               <div className="bg-[#F5F5F5] border-2 border-[#1A1A1A] rounded-lg p-8 mb-6">
-                <div className="mb-4">
-                  <h2 className="text-2xl md:text-3xl font-semibold mb-2">
-                    Your Recommended Partner
-                  </h2>
-                  <p className="text-xl md:text-2xl font-medium text-[#4A4A4A] mb-4">
-                    {partnerInfo.name}
-                  </p>
-                </div>
-
-                <div className="mb-6">
-                  <p className="text-lg md:text-xl text-[#4A4A4A] mb-4 leading-relaxed">
-                    {partnerInfo.description}
-                  </p>
-                  
-                  <div className="mb-4">
-                    <p className="text-lg font-medium mb-2">Recommended Product:</p>
-                    <p className="text-lg text-[#4A4A4A]">{matchingResult.productType}</p>
-                  </div>
-
-                  <div className="mb-4">
-                    <p className="text-lg font-medium mb-2">Why this match:</p>
-                    <p className="text-lg text-[#4A4A4A] leading-relaxed">{matchingResult.reason}</p>
-                  </div>
-
-                  <div className="mb-4">
-                    <p className="text-lg font-medium mb-2">Specialties:</p>
-                    <ul className="list-disc list-inside text-lg text-[#4A4A4A] space-y-1">
-                      {partnerInfo.specialties.map((specialty, idx) => (
-                        <li key={idx}>{specialty}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <a
-                    href={partnerInfo.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => {
-                      if (matchingResult.partner) {
-                        trackLenderClick(matchingResult.partner, matchingResult.productType);
-                      }
-                    }}
-                    className="flex-1 bg-[#1A1A1A] text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#333333] transition-colors duration-200 text-center"
-                  >
-                    Learn More About {partnerInfo.name}
-                  </a>
-                </div>
+                <p className="text-lg md:text-xl text-[#4A4A4A] mb-4 leading-relaxed">
+                  Great news! We&apos;ve found a lender match for your business.
+                </p>
+                <p className="text-lg md:text-xl text-[#4A4A4A] leading-relaxed">
+                  We&apos;ll send you detailed information about your match and next steps within 24 hours.
+                </p>
               </div>
-
-              <p className="text-[#4A4A4A] text-lg md:text-xl mb-6 leading-relaxed text-center">
-                We&apos;ve also sent detailed financing options to your email.
+              <p className="text-[#4A4A4A] text-lg md:text-xl mb-6 leading-relaxed">
+                Check your email for updates. We&apos;ve also sent a confirmation to your inbox.
               </p>
             </div>
           ) : (
-            <p className="text-[#4A4A4A] text-lg md:text-xl mb-10 leading-relaxed">
-              We&apos;ve received your information and will send financing options to your email shortly.
-            </p>
+            <div className="mb-10">
+              <div className="bg-[#F5F5F5] border-2 border-[#1A1A1A] rounded-lg p-8 mb-6">
+                <p className="text-lg md:text-xl text-[#4A4A4A] mb-4 leading-relaxed">
+                  We didn&apos;t find a match in our current lender network for your specific needs.
+                </p>
+                <p className="text-lg md:text-xl text-[#4A4A4A] leading-relaxed">
+                  We&apos;re actively working to expand our lender network and will reach out to you in the future if we find a match.
+                </p>
+              </div>
+              <p className="text-[#4A4A4A] text-lg md:text-xl mb-6 leading-relaxed">
+                Thank you for your interest. We&apos;ll keep your information on file and notify you when we have new options available.
+              </p>
+            </div>
           )}
 
           <Link

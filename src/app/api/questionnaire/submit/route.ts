@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { sendQuestionnaireNotification } from '@/lib/email';
+import { matchPartner } from '@/lib/partnerMatching';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || '';
@@ -117,6 +119,19 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Determine partner match for email notification
+    const match = matchPartner(answers);
+
+    // Send email notification (don't wait for it to complete)
+    sendQuestionnaireNotification(answers, email, match).then(result => {
+      if (!result.success) {
+        console.error('Email notification failed:', result.error);
+      }
+    }).catch(err => {
+      console.error('Unexpected error sending email notification:', err);
+      // Don't fail the request if email fails
+    });
 
     return NextResponse.json({
       success: true,
