@@ -133,8 +133,8 @@ export async function sendEmailNotification(
       return { success: false, error: errorMsg };
     }
 
-    const result = await response.json();
-    console.log('✅ Email sent successfully to', to, '- Resend ID:', result.id);
+    const result = await response.json() as { id?: string };
+    console.log('✅ Email sent successfully to', to, '- Resend ID:', result.id || 'N/A');
     return { success: true };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Unknown error';
