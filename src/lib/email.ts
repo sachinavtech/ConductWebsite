@@ -3,13 +3,15 @@
  * Uses Resend API for reliable email delivery
  */
 
+import type { MatchingResult } from './partnerMatching';
+
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const NOTIFICATION_EMAIL = 'sachin@conductfinance.com';
 
 /**
  * Format risk score data for email
  */
-function formatRiskScoreEmail(data: Record<string, any>): string {
+function formatRiskScoreEmail(data: Record<string, string | undefined>): string {
   return `
 New Conduct Risk Score Submission
 
@@ -43,10 +45,14 @@ Submitted: ${new Date().toLocaleString()}
 /**
  * Format questionnaire/match data for email
  */
-function formatQuestionnaireEmail(answers: Record<string, any>, email: string, match?: any): string {
-  const formatValue = (value: any): string => {
+function formatQuestionnaireEmail(
+  answers: Record<string, string | string[] | undefined>,
+  email: string,
+  match?: MatchingResult
+): string {
+  const formatValue = (value: string | string[] | undefined): string => {
     if (Array.isArray(value)) return value.join(', ');
-    if (typeof value === 'object') return JSON.stringify(value);
+    if (typeof value === 'object' && value !== null) return JSON.stringify(value);
     return String(value || 'N/A');
   };
 
@@ -149,7 +155,7 @@ export async function sendEmailNotification(
 /**
  * Send risk score submission notification
  */
-export async function sendRiskScoreNotification(data: Record<string, any>): Promise<{ success: boolean; error?: string }> {
+export async function sendRiskScoreNotification(data: Record<string, string | undefined>): Promise<{ success: boolean; error?: string }> {
   const emailBody = formatRiskScoreEmail(data);
   return await sendEmailNotification(
     `New Conduct Risk Score Submission - ${data.legal_business_name || 'Unknown Business'}`,
@@ -161,9 +167,9 @@ export async function sendRiskScoreNotification(data: Record<string, any>): Prom
  * Send questionnaire/match submission notification
  */
 export async function sendQuestionnaireNotification(
-  answers: Record<string, any>,
+  answers: Record<string, string | string[] | undefined>,
   email: string,
-  match?: any
+  match?: MatchingResult
 ): Promise<{ success: boolean; error?: string }> {
   const emailBody = formatQuestionnaireEmail(answers, email, match);
   return await sendEmailNotification(
