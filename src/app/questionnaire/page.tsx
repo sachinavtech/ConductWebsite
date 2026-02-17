@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { trackPrequalStart, trackStepCompletion, trackCompletion } from "@/lib/analytics";
+import { trackPrequalStart, trackStepCompletion, trackCompletion, trackPrequalAbandon, trackRoutingResult, trackLenderClick } from "@/lib/analytics";
+import { matchPartner, getPartnerInfo, type MatchingResult } from "@/lib/partnerMatching";
 
 interface Question {
   section: string;
@@ -74,9 +75,31 @@ const QUESTIONS: Question[] = [
   {
     section: "Business Identity and Operating Model",
     section_order: 1,
+    question_text: "What industry is your business in?",
+    question_type: "dropdown",
+    question_order: 4,
+    field_name: "industry",
+    is_required: true,
+    options: [
+      { value: "Trucking", label: "Trucking/Logistics" },
+      { value: "Staffing", label: "Staffing/Recruiting" },
+      { value: "Construction", label: "Construction" },
+      { value: "Retail", label: "Retail" },
+      { value: "Restaurant", label: "Restaurant/Food Service" },
+      { value: "Medical", label: "Medical/Healthcare" },
+      { value: "Wholesale", label: "Wholesale/Distribution" },
+      { value: "Manufacturing", label: "Manufacturing" },
+      { value: "Professional Services", label: "Professional Services (Consulting, Legal, Accounting)" },
+      { value: "Technology", label: "Technology/SaaS" },
+      { value: "Other", label: "Other" }
+    ]
+  },
+  {
+    section: "Business Identity and Operating Model",
+    section_order: 1,
     question_text: "How do you get paid?",
     question_type: "checkbox",
-    question_order: 4,
+    question_order: 5,
     field_name: "payment_methods",
     is_required: false,
     options: [
@@ -91,7 +114,7 @@ const QUESTIONS: Question[] = [
     section_order: 1,
     question_text: "What platforms do you use to run your business?",
     question_type: "checkbox",
-    question_order: 5,
+    question_order: 6,
     field_name: "business_platforms",
     is_required: false,
     options: [
@@ -161,17 +184,17 @@ const QUESTIONS: Question[] = [
   {
     section: "Cash Flow",
     section_order: 3,
-    question_text: "What will you primarily use the funds for?",
+    question_text: "What is your biggest challenge?",
     question_type: "dropdown",
     question_order: 1,
-    field_name: "capital_need",
+    field_name: "biggest_challenge",
     is_required: true,
     options: [
+      { value: "unpaid_invoices", label: "Cash flow gaps due to unpaid invoices from customers" },
+      { value: "growth_capital", label: "Need capital for growth (hiring, inventory, expansion)" },
+      { value: "day_to_day", label: "Covering day-to-day operating expenses" },
       { value: "equipment", label: "Purchasing equipment or machinery" },
-      { value: "cashflow", label: "Covering day-to-day or unexpected cash-flow needs" },
-      { value: "one_time", label: "Funding a large one-time business expense" },
-      { value: "invoice_bridge", label: "Bridging cash while waiting for customers to pay invoices" },
-      { value: "daily_sales", label: "Immediate access to cash tied to daily sales" }
+      { value: "seasonal", label: "Managing seasonal cash flow fluctuations" }
     ]
   },
   {
@@ -340,6 +363,9 @@ export default function Questionnaire() {
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [matchingResult, setMatchingResult] = useState<MatchingResult | null>(null);
+  const startTimeRef = useRef<number>(Date.now());
+  const hasTrackedAbandon = useRef<boolean>(false);
 
   const currentSectionName = SECTIONS[currentSection];
   const sectionQuestions = QUESTIONS.filter(q => q.section === currentSectionName);
@@ -348,7 +374,31 @@ export default function Questionnaire() {
   // Track prequal start on mount
   useEffect(() => {
     trackPrequalStart();
+    startTimeRef.current = Date.now();
   }, []);
+
+  // Track abandonment when user leaves the page without completing
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (!submitted && !hasTrackedAbandon.current) {
+        const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        trackPrequalAbandon(currentSection + 1, currentSectionName, timeSpent);
+        hasTrackedAbandon.current = true;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      // Also track if component unmounts (user navigates away)
+      if (!submitted && !hasTrackedAbandon.current) {
+        const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        trackPrequalAbandon(currentSection + 1, currentSectionName, timeSpent);
+        hasTrackedAbandon.current = true;
+      }
+    };
+  }, [submitted, currentSection, currentSectionName]);
 
   const handleInputChange = (fieldName: string, value: string) => {
     setAnswers(prev => ({ ...prev, [fieldName]: value }));
@@ -416,35 +466,114 @@ export default function Questionnaire() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit questionnaire');
+        throw new Error(data.error || 'Failed to submit your information');
       }
+
+      // Determine partner match
+      const match = matchPartner(answers);
+      setMatchingResult(match);
 
       // Track questionnaire completion
       trackCompletion(answers);
+
+      // Track routing result
+      if (match.partner) {
+        trackRoutingResult(
+          match.productType,
+          typeof answers.revenue_3months === 'string' ? answers.revenue_3months : undefined,
+          typeof answers.business_model === 'string' ? answers.business_model : undefined
+        );
+      }
+
       setSubmitted(true);
     } catch (error) {
       console.error("Error submitting questionnaire:", error);
-      alert(`There was an error submitting your questionnaire: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+      alert(`There was an error submitting your information: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   if (submitted) {
+    const partnerInfo = matchingResult?.partner ? getPartnerInfo(matchingResult.partner) : null;
+
     return (
       <main className="flex items-center justify-center min-h-screen bg-white text-[#1A1A1A] py-12">
-        <div className="text-center max-w-2xl mx-auto px-6">
+        <div className="text-center max-w-3xl mx-auto px-6">
           <div className="mb-8">
             <Link href="/">
               <img src="/logo.svg" alt="Conduct Logo" className="w-32 md:w-40 mx-auto mb-8 cursor-pointer hover:opacity-80 transition-opacity" />
             </Link>
           </div>
+          
           <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-6">
-            Thank You!
+            Your Match is Ready!
           </h1>
-          <p className="text-[#4A4A4A] text-lg md:text-xl mb-10 leading-relaxed">
-            We&apos;ve received your information and will send financing options to your email shortly.
-          </p>
+
+          {matchingResult?.partner && partnerInfo ? (
+            <div className="text-left mb-10">
+              <div className="bg-[#F5F5F5] border-2 border-[#1A1A1A] rounded-lg p-8 mb-6">
+                <div className="mb-4">
+                  <h2 className="text-2xl md:text-3xl font-semibold mb-2">
+                    Your Recommended Partner
+                  </h2>
+                  <p className="text-xl md:text-2xl font-medium text-[#4A4A4A] mb-4">
+                    {partnerInfo.name}
+                  </p>
+                </div>
+
+                <div className="mb-6">
+                  <p className="text-lg md:text-xl text-[#4A4A4A] mb-4 leading-relaxed">
+                    {partnerInfo.description}
+                  </p>
+                  
+                  <div className="mb-4">
+                    <p className="text-lg font-medium mb-2">Recommended Product:</p>
+                    <p className="text-lg text-[#4A4A4A]">{matchingResult.productType}</p>
+                  </div>
+
+                  <div className="mb-4">
+                    <p className="text-lg font-medium mb-2">Why this match:</p>
+                    <p className="text-lg text-[#4A4A4A] leading-relaxed">{matchingResult.reason}</p>
+                  </div>
+
+                  <div className="mb-4">
+                    <p className="text-lg font-medium mb-2">Specialties:</p>
+                    <ul className="list-disc list-inside text-lg text-[#4A4A4A] space-y-1">
+                      {partnerInfo.specialties.map((specialty, idx) => (
+                        <li key={idx}>{specialty}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <a
+                    href={partnerInfo.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => {
+                      if (matchingResult.partner) {
+                        trackLenderClick(matchingResult.partner, matchingResult.productType);
+                      }
+                    }}
+                    className="flex-1 bg-[#1A1A1A] text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#333333] transition-colors duration-200 text-center"
+                  >
+                    Learn More About {partnerInfo.name}
+                  </a>
+                </div>
+              </div>
+
+              <p className="text-[#4A4A4A] text-lg md:text-xl mb-6 leading-relaxed text-center">
+                We&apos;ve also sent detailed financing options to your email.
+              </p>
+            </div>
+          ) : (
+            <p className="text-[#4A4A4A] text-lg md:text-xl mb-10 leading-relaxed">
+              We&apos;ve received your information and will send financing options to your email shortly.
+            </p>
+          )}
+
           <Link
             href="/"
             className="inline-block bg-[#1A1A1A] text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#333333] transition-colors duration-200"
@@ -481,10 +610,20 @@ export default function Questionnaire() {
           </div>
         </div>
 
+        {/* Page Title */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-semibold mb-2">
+            Conduct Finance Lending Match
+          </h1>
+          <p className="text-[#4A4A4A] text-lg">
+            Tell us about your business to get matched with the right lender
+          </p>
+        </div>
+
         {/* Section Title */}
-        <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-6 text-center">
+        <h2 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-6 text-center">
           {currentSectionName}
-        </h1>
+        </h2>
 
         {/* Questions */}
         <div className="space-y-8 mb-10">

@@ -168,6 +168,24 @@ export function trackLenderClick(lenderName: string, productType: string): void 
 }
 
 /**
+ * Track questionnaire abandonment (when user leaves without completing)
+ */
+export function trackPrequalAbandon(
+  lastStepNumber: number,
+  lastSectionName: string,
+  timeSpentSeconds?: number
+): void {
+  pushToDataLayer({
+    event: 'prequal_abandon',
+    event_category: 'questionnaire',
+    event_label: 'questionnaire_abandoned',
+    last_step_number: lastStepNumber,
+    last_section_name: lastSectionName,
+    time_spent_seconds: timeSpentSeconds,
+  });
+}
+
+/**
  * Track page view (for consistency)
  */
 export function trackPageView(pagePath: string, pageTitle?: string): void {

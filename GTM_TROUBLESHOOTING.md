@@ -145,3 +145,4 @@ If after all these steps it still doesn't work:
    - Make sure environment variable is being read
    - Check if `process.env.NEXT_PUBLIC_GTM_ID` is defined at build time
 
+
