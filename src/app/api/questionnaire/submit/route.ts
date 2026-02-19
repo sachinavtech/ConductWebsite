@@ -124,14 +124,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const match = matchPartner(answers);
 
     // Send email notification (don't wait for it to complete)
-    sendQuestionnaireNotification(answers, email, match).then(result => {
-      if (!result.success) {
-        console.error('Email notification failed:', result.error);
-      }
-    }).catch(err => {
-      console.error('Unexpected error sending email notification:', err);
-      // Don't fail the request if email fails
-    });
+    console.log('[QUESTIONNAIRE] Attempting to send email notification...');
+    sendQuestionnaireNotification(answers, email, match)
+      .then(result => {
+        console.log('[QUESTIONNAIRE] Email notification result:', result);
+        if (!result.success) {
+          console.error('[QUESTIONNAIRE] Email notification failed:', result.error);
+        } else {
+          console.log('[QUESTIONNAIRE] ✅ Email notification sent successfully');
+        }
+      })
+      .catch(err => {
+        console.error('[QUESTIONNAIRE] Unexpected error sending email notification:', err);
+        console.error('[QUESTIONNAIRE] Error stack:', err instanceof Error ? err.stack : 'No stack');
+        // Don't fail the request if email fails
+      });
 
     return NextResponse.json({
       success: true,

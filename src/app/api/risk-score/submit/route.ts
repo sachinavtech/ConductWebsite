@@ -118,14 +118,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Send email notification (don't wait for it to complete)
-    sendRiskScoreNotification(body).then(result => {
-      if (!result.success) {
-        console.error('Email notification failed:', result.error);
-      }
-    }).catch(err => {
-      console.error('Unexpected error sending email notification:', err);
-      // Don't fail the request if email fails
-    });
+    console.log('[RISK_SCORE] Attempting to send email notification...');
+    sendRiskScoreNotification(body)
+      .then(result => {
+        console.log('[RISK_SCORE] Email notification result:', result);
+        if (!result.success) {
+          console.error('[RISK_SCORE] Email notification failed:', result.error);
+        } else {
+          console.log('[RISK_SCORE] ✅ Email notification sent successfully');
+        }
+      })
+      .catch(err => {
+        console.error('[RISK_SCORE] Unexpected error sending email notification:', err);
+        console.error('[RISK_SCORE] Error stack:', err instanceof Error ? err.stack : 'No stack');
+        // Don't fail the request if email fails
+      });
 
     return NextResponse.json({
       success: true,

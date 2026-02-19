@@ -114,6 +114,10 @@ export async function sendEmailNotification(
   }
 
   try {
+    console.log('[EMAIL] Sending email to:', to);
+    console.log('[EMAIL] Subject:', subject);
+    console.log('[EMAIL] Using API key:', RESEND_API_KEY ? `${RESEND_API_KEY.substring(0, 10)}...` : 'NOT SET');
+    
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -128,25 +132,39 @@ export async function sendEmailNotification(
       }),
     });
 
+    console.log('[EMAIL] Response status:', response.status);
+    console.log('[EMAIL] Response ok:', response.ok);
+
     if (!response.ok) {
-      const error = await response.json() as { message?: string; error?: string };
+      const errorText = await response.text();
+      let error: { message?: string; error?: string };
+      try {
+        error = JSON.parse(errorText) as { message?: string; error?: string };
+      } catch {
+        error = { message: errorText };
+      }
       const errorMsg = `Resend API error: ${JSON.stringify(error)}`;
       console.error('='.repeat(80));
-      console.error('EMAIL NOTIFICATION FAILED:', errorMsg);
-      console.error('Response status:', response.status);
-      console.error('Response body:', error);
+      console.error('[EMAIL] EMAIL NOTIFICATION FAILED:', errorMsg);
+      console.error('[EMAIL] Response status:', response.status);
+      console.error('[EMAIL] Response body:', error);
       console.error('='.repeat(80));
       return { success: false, error: errorMsg };
     }
 
     const result = await response.json() as { id?: string };
-    console.log('✅ Email sent successfully to', to, '- Resend ID:', result.id || 'N/A');
+    console.log('[EMAIL] ✅ Email sent successfully to', to, '- Resend ID:', result.id || 'N/A');
+    console.log('[EMAIL] Full response:', JSON.stringify(result));
     return { success: true };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Unknown error';
     console.error('='.repeat(80));
-    console.error('EMAIL NOTIFICATION FAILED:', errorMsg);
-    console.error('Full error:', error);
+    console.error('[EMAIL] EMAIL NOTIFICATION FAILED:', errorMsg);
+    console.error('[EMAIL] Error type:', error instanceof Error ? error.constructor.name : typeof error);
+    console.error('[EMAIL] Full error:', error);
+    if (error instanceof Error) {
+      console.error('[EMAIL] Error stack:', error.stack);
+    }
     console.error('='.repeat(80));
     return { success: false, error: errorMsg };
   }
