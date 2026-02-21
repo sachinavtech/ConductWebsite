@@ -2,6 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendRiskScoreNotification } from '@/lib/email';
 
+// Helper to ensure email completes in serverless environment
+// Actually awaits the email with a timeout to prevent function from terminating early
+async function sendEmailWithTimeout(
+  emailPromise: Promise<{ success: boolean; error?: string }>,
+  timeoutMs: number = 5000
+): Promise<{ success: boolean; error?: string }> {
+  const timeoutPromise = new Promise<{ success: boolean; error?: string }>((resolve) => {
+    setTimeout(() => resolve({ success: false, error: 'Email timeout' }), timeoutMs);
+  });
+  
+  try {
+    const result = await Promise.race([emailPromise, timeoutPromise]);
+    if (result.success) {
+      console.log('[RISK_SCORE] ✅ Email sent successfully (with timeout protection)');
+    } else {
+      console.error('[RISK_SCORE] Email failed or timed out:', result.error);
+    }
+    return result;
+  } catch (err) {
+    console.error('[RISK_SCORE] Unexpected error in email timeout handler:', err);
+    return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
+  }
+}
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || '';
 
@@ -117,11 +141,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Send email notification (don't wait for it to complete)
+    // Send email notification (await with timeout to prevent function termination)
     console.log('[RISK_SCORE] Attempting to send email notification...');
     console.log('[RISK_SCORE] Body data keys:', Object.keys(body));
     console.log('[RISK_SCORE] Body data sample:', JSON.stringify(body).substring(0, 200));
-    sendRiskScoreNotification(body)
+    
+    const emailPromise = sendRiskScoreNotification(body)
       .then(result => {
         console.log('[RISK_SCORE] Email notification result:', result);
         if (!result.success) {
@@ -129,12 +154,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         } else {
           console.log('[RISK_SCORE] ✅ Email notification sent successfully');
         }
+        return result;
       })
       .catch(err => {
         console.error('[RISK_SCORE] Unexpected error sending email notification:', err);
         console.error('[RISK_SCORE] Error stack:', err instanceof Error ? err.stack : 'No stack');
-        // Don't fail the request if email fails
+        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
       });
+    
+    // Await email with timeout (ensures function doesn't terminate before email completes)
+    await sendEmailWithTimeout(emailPromise, 5000);
 
     return NextResponse.json({
       success: true,
