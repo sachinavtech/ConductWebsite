@@ -119,6 +119,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Send email notification (don't wait for it to complete)
     console.log('[RISK_SCORE] Attempting to send email notification...');
+    console.log('[RISK_SCORE] Body data keys:', Object.keys(body));
+    console.log('[RISK_SCORE] Body data sample:', JSON.stringify(body).substring(0, 200));
     sendRiskScoreNotification(body)
       .then(result => {
         console.log('[RISK_SCORE] Email notification result:', result);
