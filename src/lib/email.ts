@@ -3,104 +3,98 @@
  * Uses Resend API for reliable email delivery
  */
 
-import type { MatchingResult } from './partnerMatching';
-
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const NOTIFICATION_EMAIL = 'sachin@conductfinance.com';
 
-/**
- * Format risk score data for email
- */
-function formatRiskScoreEmail(data: Record<string, string | undefined>): string {
+interface BankDataPlaid {
+  method: 'plaid';
+  plaidAccounts: { id: string; name: string; institution: string; mask: string; type: string; monthsCovered: number }[];
+}
+
+interface BankDataUpload {
+  method: 'upload';
+  bankStatements: { fileName: string; month: string; year: string; sizeKB: number }[];
+}
+
+type BankData = BankDataPlaid | BankDataUpload;
+
+interface ApplicationData {
+  ein: string;
+  ownerName: string;
+  ownershipPercentage: string;
+  email: string;
+  phone: string;
+  advanceAmount: string;
+  bankData: BankData;
+  consentTimestamp: string;
+}
+
+function formatBankSection(bankData: BankData): string {
+  if (bankData.method === 'plaid') {
+    const accounts = bankData.plaidAccounts
+      .map(a => `  ${a.institution} — ${a.name} (...${a.mask}) — ${a.monthsCovered} months of history`)
+      .join('\n');
+    return `Bank Data (Plaid Linked)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Method: Plaid (instant bank connection)
+${accounts}`;
+  }
+
+  const statements = bankData.bankStatements
+    .map(s => `  ${s.fileName} — ${s.month} ${s.year} (${s.sizeKB} KB)`)
+    .join('\n');
+  return `Bank Statements (${bankData.bankStatements.length} files uploaded)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Method: PDF Upload
+${statements}`;
+}
+
+function formatApplicationEmail(data: ApplicationData): string {
   return `
-New Conduct Risk Score Submission
+New MCA Application
 
-Part 1: Business Information (KYB/State Verification)
+Contact
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Legal Business Name: ${data.legal_business_name || 'N/A'}
-Doing Business As (DBA): ${data.doing_business_as || 'N/A'}
-State of Incorporation: ${data.state_of_incorporation || 'N/A'}
-Entity Type: ${data.entity_type || 'N/A'}
-EIN (Federal Tax ID): ${data.ein || 'N/A'}
-Business Physical Address: ${data.business_physical_address || 'N/A'}
-Date of Formation: ${data.date_of_formation || 'N/A'}
+Email: ${data.email}
+Phone: ${data.phone}
 
-Part 2: Digital Presence & Operations
+Business
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Corporate Website URL: ${data.corporate_website_url || 'N/A'}
-LinkedIn Company Page: ${data.linkedin_company_page_url || 'N/A'}
-Facebook Business Page: ${data.facebook_business_page_url || 'N/A'}
-Yelp/Google Business Profile: ${data.yelp_google_business_profile_url || 'N/A'}
-Business Phone Number: ${data.business_phone_number || 'N/A'}
-Primary Bank Account (Last 4): ${data.primary_bank_account_last_4 || 'N/A'}
+EIN: ${data.ein.replace(/(\d{2})(\d+)/, '$1-$2')}
 
-Contact Information
+Owner
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Email: ${data.email || 'N/A'}
+Name: ${data.ownerName}
+Ownership: ${data.ownershipPercentage}%
+SSN: [Provided — not shown in email]
+
+Funding
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Desired Advance: ${data.advanceAmount}
+
+${formatBankSection(data.bankData)}
+
+Authorization
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Consent given: Yes
+Consent timestamp: ${data.consentTimestamp}
+
+Next Steps
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+→ Middesk business verification via EIN
+→ Soft credit pull via SSN
+→ ${data.bankData.method === 'plaid' ? 'Plaid bank account analysis' : 'Bank statement analysis via Ocrolus'}
+→ Match to lender network based on advance size + profile
 
 Submitted: ${new Date().toLocaleString()}
   `.trim();
 }
 
-/**
- * Format questionnaire/match data for email
- */
-function formatQuestionnaireEmail(
-  answers: Record<string, string | string[] | undefined>,
-  email: string,
-  match?: MatchingResult
-): string {
-  const formatValue = (value: string | string[] | undefined): string => {
-    if (Array.isArray(value)) return value.join(', ');
-    if (typeof value === 'object' && value !== null) return JSON.stringify(value);
-    return String(value || 'N/A');
-  };
-
-  let emailContent = `
-New Lending Match Questionnaire Submission
-
-Contact Information
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Email: ${email}
-
-Questionnaire Answers
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-`;
-
-  // Add all answers
-  Object.entries(answers).forEach(([key, value]) => {
-    if (key !== 'email') { // Don't duplicate email
-      const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      emailContent += `${formattedKey}: ${formatValue(value)}\n`;
-    }
-  });
-
-  // Add match information if available
-  if (match && match.partner) {
-    emailContent += `
-\nMatch Recommendation
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Recommended Partner: ${match.partner}
-Product Type: ${match.productType}
-Reason: ${match.reason}
-Confidence: ${match.confidence}
-`;
-  }
-
-  emailContent += `\nSubmitted: ${new Date().toLocaleString()}`;
-
-  return emailContent.trim();
-}
-
-/**
- * Send email using Resend API
- */
 export async function sendEmailNotification(
   subject: string,
   body: string,
   to: string = NOTIFICATION_EMAIL
 ): Promise<{ success: boolean; error?: string }> {
-  // If Resend API key is not configured, log to console and return false
   if (!RESEND_API_KEY) {
     const errorMsg = 'RESEND_API_KEY not configured in environment variables. Email notification not sent.';
     console.error('='.repeat(80));
@@ -116,8 +110,7 @@ export async function sendEmailNotification(
   try {
     console.log('[EMAIL] Sending email to:', to);
     console.log('[EMAIL] Subject:', subject);
-    console.log('[EMAIL] Using API key:', RESEND_API_KEY ? `${RESEND_API_KEY.substring(0, 10)}...` : 'NOT SET');
-    
+
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -125,15 +118,12 @@ export async function sendEmailNotification(
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'onboarding@resend.dev', // Use Resend's default domain for testing
+        from: 'onboarding@resend.dev',
         to: [to],
         subject: subject,
         text: body,
       }),
     });
-
-    console.log('[EMAIL] Response status:', response.status);
-    console.log('[EMAIL] Response ok:', response.ok);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -144,55 +134,27 @@ export async function sendEmailNotification(
         error = { message: errorText };
       }
       const errorMsg = `Resend API error: ${JSON.stringify(error)}`;
-      console.error('='.repeat(80));
       console.error('[EMAIL] EMAIL NOTIFICATION FAILED:', errorMsg);
-      console.error('[EMAIL] Response status:', response.status);
-      console.error('[EMAIL] Response body:', error);
-      console.error('='.repeat(80));
       return { success: false, error: errorMsg };
     }
 
     const result = await response.json() as { id?: string };
-    console.log('[EMAIL] ✅ Email sent successfully to', to, '- Resend ID:', result.id || 'N/A');
-    console.log('[EMAIL] Full response:', JSON.stringify(result));
+    console.log('[EMAIL] Email sent successfully - Resend ID:', result.id || 'N/A');
     return { success: true };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-    console.error('='.repeat(80));
     console.error('[EMAIL] EMAIL NOTIFICATION FAILED:', errorMsg);
-    console.error('[EMAIL] Error type:', error instanceof Error ? error.constructor.name : typeof error);
-    console.error('[EMAIL] Full error:', error);
-    if (error instanceof Error) {
-      console.error('[EMAIL] Error stack:', error.stack);
-    }
-    console.error('='.repeat(80));
     return { success: false, error: errorMsg };
   }
 }
 
-/**
- * Send risk score submission notification
- */
-export async function sendRiskScoreNotification(data: Record<string, string | undefined>): Promise<{ success: boolean; error?: string }> {
-  const emailBody = formatRiskScoreEmail(data);
-  return await sendEmailNotification(
-    `New Conduct Risk Score Submission - ${data.legal_business_name || 'Unknown Business'}`,
-    emailBody
-  );
-}
-
-/**
- * Send questionnaire/match submission notification
- */
-export async function sendQuestionnaireNotification(
-  answers: Record<string, string | string[] | undefined>,
-  email: string,
-  match?: MatchingResult
+export async function sendApplicationNotification(
+  data: ApplicationData
 ): Promise<{ success: boolean; error?: string }> {
-  const emailBody = formatQuestionnaireEmail(answers, email, match);
+  const method = data.bankData.method === 'plaid' ? 'Plaid' : 'Upload';
+  const emailBody = formatApplicationEmail(data);
   return await sendEmailNotification(
-    `New Lending Match Submission - ${email}`,
+    `MCA Application [${method}] — ${data.advanceAmount} — ${data.email}`,
     emailBody
   );
 }
-
