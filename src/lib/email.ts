@@ -81,7 +81,7 @@ Consent timestamp: ${data.consentTimestamp}
 
 Next Steps
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-→ Middesk business verification via EIN
+→ Business verification via EIN
 → Soft credit pull via SSN
 → ${data.bankData.method === 'plaid' ? 'Plaid bank account analysis' : 'Bank statement analysis via Ocrolus'}
 → Match to lender network based on advance size + profile

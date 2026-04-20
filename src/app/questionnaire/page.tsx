@@ -453,7 +453,7 @@ export default function MCAApplication() {
               We&apos;re running your business verification, soft credit pull, and bank {bankMethod === "plaid" ? "account" : "statement"} analysis now.
             </p>
             <p className="text-lg md:text-xl text-[#4A4A4A] leading-relaxed">
-              You&apos;ll hear from us within <span className="font-semibold text-[#1A1A1A]">1 business day</span> with your MCA pre-qualification results and matched lender options.
+              You could be matched instantly and receive funding within <span className="font-semibold text-[#1A1A1A]">24-48 hours</span>.
             </p>
           </div>
 
@@ -462,7 +462,7 @@ export default function MCAApplication() {
             <ol className="space-y-2 text-[#4A4A4A]">
               <li className="flex gap-3">
                 <span className="font-semibold text-[#1A1A1A] shrink-0">1.</span>
-                <span>Middesk verifies your business entity via EIN</span>
+                <span>Your business entity is verified via EIN</span>
               </li>
               <li className="flex gap-3">
                 <span className="font-semibold text-[#1A1A1A] shrink-0">2.</span>
@@ -523,7 +523,7 @@ export default function MCAApplication() {
                 Employer Identification Number (EIN) <span className="text-red-500">*</span>
               </label>
               <p className="text-sm text-[#6F6F6F]">
-                We use your EIN to verify your business name, formation date, good standing, SIC code, and state via Middesk.
+                We use your EIN to verify your business name, formation date, good standing, SIC code, and state.
               </p>
               <input
                 type="text"

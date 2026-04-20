@@ -58,7 +58,7 @@ export default function Home() {
                 We do the underwriting
               </h3>
               <p className="text-[#4A4A4A] text-lg md:text-xl leading-relaxed">
-                Middesk verifies your business. A soft credit pull runs automatically. Our system analyzes your bank statements for deposits, overdrafts, and cash flow.
+                Your business is verified instantly. A soft credit pull runs automatically. Our system analyzes your bank statements for deposits, overdrafts, and cash flow.
               </p>
             </div>
 
@@ -73,7 +73,7 @@ export default function Home() {
                 Get matched and funded
               </h3>
               <p className="text-[#4A4A4A] text-lg md:text-xl leading-relaxed">
-                We match you with the best MCA lender for your profile. Many businesses receive funding within 24-48 hours of approval.
+                Get matched instantly with the best MCA lender for your profile. Many businesses receive funding within 24-48 hours.
               </p>
             </div>
           </div>
