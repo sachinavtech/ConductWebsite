@@ -90,7 +90,7 @@ export default function Contact() {
             Talk to the Team
           </h1>
           <p className="text-[#4A4A4A] text-lg md:text-xl leading-relaxed">
-            Have a question about MCA funding or want to learn more? Send us a message and we&apos;ll be in touch.
+            Have a question about Merchant Cash Advance funding or want to learn more? Send us a message and we&apos;ll be in touch.
           </p>
         </div>
 

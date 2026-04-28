@@ -88,10 +88,10 @@ export default function LenderInquiry() {
 
         <div className="text-center mb-10">
           <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-4">
-            Join Our MCA Lender Network
+            Join Our Merchant Cash Advance Lender Network
           </h1>
           <p className="text-[#4A4A4A] text-lg md:text-xl leading-relaxed">
-            Integrate our scoring engine into your underwriting workflow or receive pre-scored MCA leads directly to your CRM.
+            Integrate our scoring engine into your underwriting workflow or receive pre-scored Merchant Cash Advance leads directly to your CRM.
           </p>
         </div>
 
@@ -120,7 +120,7 @@ export default function LenderInquiry() {
                 value={formData.company}
                 onChange={(e) => handleChange("company", e.target.value)}
                 className="w-full px-4 py-3 border-2 border-[#1A1A1A] rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1A1A1A] focus:ring-offset-2"
-                placeholder="Your MCA company name"
+                placeholder="Your company name"
                 required
               />
             </div>
@@ -149,7 +149,7 @@ export default function LenderInquiry() {
               value={formData.subject}
               onChange={(e) => handleChange("subject", e.target.value)}
               className="w-full px-4 py-3 border-2 border-[#1A1A1A] rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1A1A1A] focus:ring-offset-2"
-              placeholder="e.g. Interested in receiving pre-scored MCA leads"
+              placeholder="e.g. Interested in receiving pre-scored Merchant Cash Advance leads"
               required
             />
           </div>
