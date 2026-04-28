@@ -92,35 +92,35 @@ export default function Home() {
       <section className="py-20">
         <div className="max-w-5xl mx-auto px-6">
           <h2 className="text-4xl md:text-5xl font-semibold text-center mb-16">
-            Why use Conduct for Business Cash Advances?
+            Why use Conduct for Business Cash Advance?
           </h2>
           
           <div className="grid md:grid-cols-2 gap-12">
             <div className="border-l-4 border-[#0B3D91] pl-6">
-              <h3 className="text-2xl font-semibold mb-4">Deposits Over FICO</h3>
+              <h3 className="text-2xl font-semibold mb-4">Instant Funding</h3>
               <p className="text-[#2A3E66] text-lg md:text-xl leading-relaxed">
-                Approval is driven by your bank deposits, not your credit score. If you do $15K or more per month in deposits, you likely qualify even with a 500 to 600 FICO.
+                You can get matched quickly and receive funding in as little as 24 to 48 hours.
               </p>
             </div>
             
             <div className="border-l-4 border-[#0B3D91] pl-6">
-              <h3 className="text-2xl font-semibold mb-4">Soft Pull First</h3>
+              <h3 className="text-2xl font-semibold mb-4">Completely Digital Application</h3>
               <p className="text-[#2A3E66] text-lg md:text-xl leading-relaxed">
-                We start with a soft credit pull that does not affect your score. A hard pull only happens at final funding, and many funders approve on soft pull alone.
+                Our fully digital process takes less than a minute to start and can be completed from anywhere.
               </p>
             </div>
             
             <div className="border-l-4 border-[#0B3D91] pl-6">
-              <h3 className="text-2xl font-semibold mb-4">Speed to Funding</h3>
+              <h3 className="text-2xl font-semibold mb-4">No Minimum FICO or Bureau Scores</h3>
               <p className="text-[#2A3E66] text-lg md:text-xl leading-relaxed">
-                Business Cash Advances are one of the fastest paths to capital. Many businesses receive funds within 24 to 48 hours of approval. No collateral required.
+                Underwriting is machine learning based and focused on your revenue performance and overall business strength.
               </p>
             </div>
             
             <div className="border-l-4 border-[#0B3D91] pl-6">
-              <h3 className="text-2xl font-semibold mb-4">Transparent Matching</h3>
+              <h3 className="text-2xl font-semibold mb-4">White Glove Concierge Service</h3>
               <p className="text-[#2A3E66] text-lg md:text-xl leading-relaxed">
-                We tell you exactly why you do or do not qualify, what drives pricing, and what to improve. No black boxes, no surprises.
+                Our team supports you one on one throughout the process so you can move from application to funding with confidence.
               </p>
             </div>
           </div>
