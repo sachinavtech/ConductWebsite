@@ -2,8 +2,8 @@
 
 :root {
   --background: #FFFFFF;
-  --foreground: #1A1A1A;
-  --secondary-text: #4A4A4A;
+  --foreground: #0B3D91;
+  --secondary-text: #2A3E66;
   --borders: #E5E5E5;
 }
 
@@ -18,8 +18,8 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #FFFFFF;
-    --foreground: #1A1A1A;
-    --secondary-text: #4A4A4A;
+    --foreground: #0B3D91;
+    --secondary-text: #2A3E66;
     --borders: #E5E5E5;
   }
 }

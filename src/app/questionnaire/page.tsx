@@ -201,7 +201,7 @@ function PlaidLinkModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-        <div className="bg-[#1A1A1A] text-white px-6 py-4 flex items-center justify-between">
+        <div className="bg-[#0B3D91] text-white px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="shrink-0">
               <rect width="24" height="24" rx="4" fill="#00D064"/>
@@ -443,7 +443,7 @@ export default function MCAApplication() {
   // ── DECLINED ──
   if (currentStep === "declined") {
     return (
-      <main className="flex items-center justify-center min-h-screen bg-white text-[#1A1A1A] py-12">
+      <main className="flex items-center justify-center min-h-screen bg-white text-[#0B3D91] py-12">
         <div className="text-center max-w-2xl mx-auto px-6">
           <Logo />
           <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-6">
@@ -454,14 +454,14 @@ export default function MCAApplication() {
               {declineReason}
             </p>
           </div>
-          <p className="text-[#4A4A4A] text-lg mb-8 leading-relaxed">
+          <p className="text-[#2A3E66] text-lg mb-8 leading-relaxed">
             We currently do not have lenders that match your profile. If your situation changes, please feel free to reapply or reach out to our team.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/" className="inline-block bg-[#1A1A1A] text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#333333] transition-colors duration-200">
+            <Link href="/" className="inline-block bg-[#0B3D91] text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#0A2F72] transition-colors duration-200">
               Back to Home
             </Link>
-            <Link href="/contact" className="inline-block border-2 border-[#1A1A1A] text-[#1A1A1A] px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#1A1A1A] hover:text-white transition-colors duration-200">
+            <Link href="/contact" className="inline-block border-2 border-[#0B3D91] text-[#0B3D91] px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#0B3D91] hover:text-white transition-colors duration-200">
               Talk to the Team
             </Link>
           </div>
@@ -473,21 +473,21 @@ export default function MCAApplication() {
   // ── SUBMITTED (final) ──
   if (currentStep === "submitted") {
     return (
-      <main className="flex items-center justify-center min-h-screen bg-white text-[#1A1A1A] py-12">
+      <main className="flex items-center justify-center min-h-screen bg-white text-[#0B3D91] py-12">
         <div className="text-center max-w-2xl mx-auto px-6">
           <Logo />
           <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-6">
             Application Received
           </h1>
-          <div className="bg-[#F5F5F5] border-2 border-[#1A1A1A] rounded-lg p-8 mb-8">
-            <p className="text-lg md:text-xl text-[#4A4A4A] mb-4 leading-relaxed">
+          <div className="bg-[#F5F5F5] border-2 border-[#0B3D91] rounded-lg p-8 mb-8">
+            <p className="text-lg md:text-xl text-[#2A3E66] mb-4 leading-relaxed">
               We are running your business verification, soft credit pull, and bank {bankMethod === "plaid" ? "account" : "statement"} analysis now.
             </p>
-            <p className="text-lg md:text-xl text-[#4A4A4A] leading-relaxed">
-              You could be matched instantly and receive funding within <span className="font-semibold text-[#1A1A1A]">24 to 48 hours</span>.
+            <p className="text-lg md:text-xl text-[#2A3E66] leading-relaxed">
+              You could be matched instantly and receive funding within <span className="font-semibold text-[#0B3D91]">24 to 48 hours</span>.
             </p>
           </div>
-          <Link href="/" className="inline-block bg-[#1A1A1A] text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#333333] transition-colors duration-200">
+          <Link href="/" className="inline-block bg-[#0B3D91] text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#0A2F72] transition-colors duration-200">
             Back to Home
           </Link>
         </div>
@@ -498,7 +498,7 @@ export default function MCAApplication() {
   // ── PRE-APPROVED: collect bank info ──
   if (currentStep === "preapproved") {
     return (
-      <main className="flex items-center justify-center min-h-screen bg-white text-[#1A1A1A] py-12">
+      <main className="flex items-center justify-center min-h-screen bg-white text-[#0B3D91] py-12">
         <div className="w-full max-w-2xl mx-auto px-6">
           <Logo />
 
@@ -509,7 +509,7 @@ export default function MCAApplication() {
             <h1 className="text-3xl md:text-4xl font-semibold mb-3">
               Congratulations, You Are Pre-Approved!
             </h1>
-            <p className="text-[#4A4A4A] text-lg leading-relaxed max-w-xl mx-auto">
+            <p className="text-[#2A3E66] text-lg leading-relaxed max-w-xl mx-auto">
               Your business information passed our initial review. To complete your application, please provide your bank information below.
             </p>
           </div>
@@ -519,11 +519,11 @@ export default function MCAApplication() {
             <section className="space-y-6">
               <h2 className="text-xl font-semibold border-b border-[#E5E5E5] pb-2">Bank Information</h2>
 
-              <div className="flex rounded-lg border-2 border-[#1A1A1A] overflow-hidden">
-                <button type="button" onClick={() => setBankMethod("plaid")} className={`flex-1 py-3 text-center font-medium transition-colors ${bankMethod === "plaid" ? "bg-[#1A1A1A] text-white" : "bg-white text-[#4A4A4A] hover:bg-[#F5F5F5]"}`}>
+              <div className="flex rounded-lg border-2 border-[#0B3D91] overflow-hidden">
+                <button type="button" onClick={() => setBankMethod("plaid")} className={`flex-1 py-3 text-center font-medium transition-colors ${bankMethod === "plaid" ? "bg-[#0B3D91] text-white" : "bg-white text-[#2A3E66] hover:bg-[#F5F5F5]"}`}>
                   Link via Plaid
                 </button>
-                <button type="button" onClick={() => setBankMethod("upload")} className={`flex-1 py-3 text-center font-medium transition-colors ${bankMethod === "upload" ? "bg-[#1A1A1A] text-white" : "bg-white text-[#4A4A4A] hover:bg-[#F5F5F5]"}`}>
+                <button type="button" onClick={() => setBankMethod("upload")} className={`flex-1 py-3 text-center font-medium transition-colors ${bankMethod === "upload" ? "bg-[#0B3D91] text-white" : "bg-white text-[#2A3E66] hover:bg-[#F5F5F5]"}`}>
                   Upload Statements
                 </button>
               </div>
@@ -547,10 +547,10 @@ export default function MCAApplication() {
                           <button type="button" onClick={() => removePlaidAccount(acct.id)} className="text-red-600 hover:text-red-800 text-sm font-medium px-2 shrink-0">Remove</button>
                         </div>
                       ))}
-                      <button type="button" onClick={() => setShowPlaidModal(true)} className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] font-medium">+ Link another account</button>
+                      <button type="button" onClick={() => setShowPlaidModal(true)} className="text-sm text-[#2A3E66] hover:text-[#0B3D91] font-medium">+ Link another account</button>
                     </div>
                   ) : (
-                    <button type="button" onClick={() => setShowPlaidModal(true)} className={`w-full py-4 rounded-lg border-2 border-dashed font-medium text-lg transition-colors ${bankErrors ? "border-red-400 bg-red-50 text-red-700" : "border-[#CCC] text-[#4A4A4A] hover:border-[#1A1A1A] hover:bg-[#FAFAFA]"}`}>
+                    <button type="button" onClick={() => setShowPlaidModal(true)} className={`w-full py-4 rounded-lg border-2 border-dashed font-medium text-lg transition-colors ${bankErrors ? "border-red-400 bg-red-50 text-red-700" : "border-[#CCC] text-[#2A3E66] hover:border-[#0B3D91] hover:bg-[#FAFAFA]"}`}>
                       <span className="flex items-center justify-center gap-2">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#00D064"/><path d="M7 12h10M7 8h6M7 16h8" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
                         Connect with Plaid
@@ -591,10 +591,10 @@ export default function MCAApplication() {
                       onClick={() => fileInputRef.current?.click()}
                       onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                       onDrop={(e) => { e.preventDefault(); e.stopPropagation(); handleFileAdd(e.dataTransfer.files); }}
-                      className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors duration-150 ${bankErrors ? 'border-red-400 bg-red-50' : 'border-[#CCC] hover:border-[#1A1A1A] hover:bg-[#FAFAFA]'}`}
+                      className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors duration-150 ${bankErrors ? 'border-red-400 bg-red-50' : 'border-[#CCC] hover:border-[#0B3D91] hover:bg-[#FAFAFA]'}`}
                     >
                       <input ref={fileInputRef} type="file" accept=".pdf" multiple onChange={(e) => handleFileAdd(e.target.files)} className="hidden" />
-                      <p className="text-lg font-medium text-[#4A4A4A] mb-1">Drop PDF files here or click to browse</p>
+                      <p className="text-lg font-medium text-[#2A3E66] mb-1">Drop PDF files here or click to browse</p>
                       <p className="text-sm text-[#6F6F6F]">{bankStatements.length}/3 minimum &middot; PDF only &middot; 20MB max per file</p>
                     </div>
                   )}
@@ -612,7 +612,7 @@ export default function MCAApplication() {
             <button
               onClick={handleFinalSubmit}
               disabled={isSubmitting}
-              className={`w-full px-8 py-4 rounded-lg text-lg font-medium transition-colors duration-200 ${isSubmitting ? "bg-[#E5E5E5] text-[#6F6F6F] cursor-not-allowed" : "bg-[#1A1A1A] text-white hover:bg-[#333333]"}`}
+              className={`w-full px-8 py-4 rounded-lg text-lg font-medium transition-colors duration-200 ${isSubmitting ? "bg-[#E5E5E5] text-[#6F6F6F] cursor-not-allowed" : "bg-[#0B3D91] text-white hover:bg-[#0A2F72]"}`}
             >
               {isSubmitting ? "Submitting..." : "Complete Application"}
             </button>
@@ -630,15 +630,15 @@ export default function MCAApplication() {
 
   // ── STEP 1: Pre-approval Application Form ──
   return (
-    <main className="flex items-center justify-center min-h-screen bg-white text-[#1A1A1A] py-12">
+    <main className="flex items-center justify-center min-h-screen bg-white text-[#0B3D91] py-12">
       <div className="w-full max-w-2xl mx-auto px-6">
         <Logo />
 
         <div className="text-center mb-10">
           <h1 className="text-3xl md:text-4xl font-semibold mb-3">
-            Apply for Merchant Cash Advance Funding
+            Apply for Business Cash Advance Funding
           </h1>
-          <p className="text-[#4A4A4A] text-lg leading-relaxed max-w-xl mx-auto">
+          <p className="text-[#2A3E66] text-lg leading-relaxed max-w-xl mx-auto">
             Fill out the form below to see if you pre-qualify. No credit impact. Takes under 2 minutes.
           </p>
         </div>
@@ -651,7 +651,7 @@ export default function MCAApplication() {
             <div className="space-y-2">
               <label className="block text-lg font-medium">Employer Identification Number (EIN) <span className="text-red-500">*</span></label>
               <p className="text-sm text-[#6F6F6F]">We use your EIN to verify your business name, formation date, good standing, SIC code, and state.</p>
-              <input type="text" inputMode="numeric" value={ein} onChange={(e) => setEin(formatEIN(e.target.value))} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ein ? 'border-red-500 focus:ring-red-500' : 'border-[#1A1A1A] focus:ring-[#1A1A1A]'}`} placeholder="XX-XXXXXXX" />
+              <input type="text" inputMode="numeric" value={ein} onChange={(e) => setEin(formatEIN(e.target.value))} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ein ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`} placeholder="XX-XXXXXXX" />
               {fieldErrors.ein && <p className="text-sm text-red-600">{fieldErrors.ein}</p>}
             </div>
           </section>
@@ -661,19 +661,19 @@ export default function MCAApplication() {
             <h2 className="text-xl font-semibold border-b border-[#E5E5E5] pb-2">Owner</h2>
             <div className="space-y-2">
               <label className="block text-lg font-medium">Owner Full Legal Name <span className="text-red-500">*</span></label>
-              <input type="text" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ownerName ? 'border-red-500 focus:ring-red-500' : 'border-[#1A1A1A] focus:ring-[#1A1A1A]'}`} placeholder="As it appears on your ID" />
+              <input type="text" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ownerName ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`} placeholder="As it appears on your ID" />
               {fieldErrors.ownerName && <p className="text-sm text-red-600">{fieldErrors.ownerName}</p>}
             </div>
             <div className="space-y-2">
               <label className="block text-lg font-medium">Social Security Number <span className="text-red-500">*</span></label>
               <p className="text-sm text-[#6F6F6F]">Used for a soft credit pull only. No impact to your score.</p>
-              <input type="password" inputMode="numeric" autoComplete="off" value={ownerSSN} onChange={(e) => { const raw = e.target.value.replace(/\D/g, ""); if (raw.length <= 9) setOwnerSSN(formatSSN(e.target.value)); }} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg font-mono focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ownerSSN ? 'border-red-500 focus:ring-red-500' : 'border-[#1A1A1A] focus:ring-[#1A1A1A]'}`} placeholder={"\u2022\u2022\u2022-\u2022\u2022-\u2022\u2022\u2022\u2022"} />
+              <input type="password" inputMode="numeric" autoComplete="off" value={ownerSSN} onChange={(e) => { const raw = e.target.value.replace(/\D/g, ""); if (raw.length <= 9) setOwnerSSN(formatSSN(e.target.value)); }} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg font-mono focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ownerSSN ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`} placeholder={"\u2022\u2022\u2022-\u2022\u2022-\u2022\u2022\u2022\u2022"} />
               {fieldErrors.ownerSSN && <p className="text-sm text-red-600">{fieldErrors.ownerSSN}</p>}
             </div>
             <div className="space-y-2">
               <label className="block text-lg font-medium">Ownership Percentage <span className="text-red-500">*</span></label>
               <p className="text-sm text-[#6F6F6F]">The signing owner must typically hold 50% or more to personally guarantee.</p>
-              <select value={ownershipPct} onChange={(e) => setOwnershipPct(e.target.value)} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ownershipPct ? 'border-red-500 focus:ring-red-500' : 'border-[#1A1A1A] focus:ring-[#1A1A1A]'}`}>
+              <select value={ownershipPct} onChange={(e) => setOwnershipPct(e.target.value)} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ownershipPct ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`}>
                 <option value="">Select ownership</option>
                 {OWNERSHIP_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -687,12 +687,12 @@ export default function MCAApplication() {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="block text-lg font-medium">Business Email <span className="text-red-500">*</span></label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.email ? 'border-red-500 focus:ring-red-500' : 'border-[#1A1A1A] focus:ring-[#1A1A1A]'}`} placeholder="you@business.com" />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.email ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`} placeholder="you@business.com" />
                 {fieldErrors.email && <p className="text-sm text-red-600">{fieldErrors.email}</p>}
               </div>
               <div className="space-y-2">
                 <label className="block text-lg font-medium">Business Phone <span className="text-red-500">*</span></label>
-                <input type="tel" value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.phone ? 'border-red-500 focus:ring-red-500' : 'border-[#1A1A1A] focus:ring-[#1A1A1A]'}`} placeholder="(555) 123-4567" />
+                <input type="tel" value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.phone ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`} placeholder="(555) 123-4567" />
                 {fieldErrors.phone && <p className="text-sm text-red-600">{fieldErrors.phone}</p>}
               </div>
             </div>
@@ -710,7 +710,7 @@ export default function MCAApplication() {
                 value={advanceAmount}
                 onChange={(e) => setAdvanceAmount(formatCurrency(e.target.value))}
                 onFocus={handleFocus}
-                className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.advanceAmount ? 'border-red-500 focus:ring-red-500' : 'border-[#1A1A1A] focus:ring-[#1A1A1A]'}`}
+                className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.advanceAmount ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`}
                 placeholder="$50,000"
               />
               {fieldErrors.advanceAmount && <p className="text-sm text-red-600">{fieldErrors.advanceAmount}</p>}
@@ -720,10 +720,10 @@ export default function MCAApplication() {
           {/* Authorization */}
           <section className="space-y-4">
             <h2 className="text-xl font-semibold border-b border-[#E5E5E5] pb-2">Authorization</h2>
-            <label className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-colors ${consent ? 'border-[#1A1A1A] bg-[#F5F5F5]' : fieldErrors.consent ? 'border-red-400' : 'border-[#E5E5E5] hover:border-[#999]'}`}>
-              <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 w-5 h-5 border-2 border-[#1A1A1A] rounded focus:ring-2 focus:ring-[#1A1A1A] text-[#1A1A1A] cursor-pointer shrink-0" />
-              <span className="text-sm text-[#4A4A4A] leading-relaxed">
-                I authorize Conduct Finance to perform a <strong>soft credit inquiry</strong> (no impact to my credit score), verify my identity, share my application data with potential Merchant Cash Advance lenders for the purpose of providing funding offers, and confirm that I have the authority to sign on behalf of the business as an owner with the percentage stated above. I understand a hard credit pull will only occur at the time of funding, with my separate consent.
+            <label className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-colors ${consent ? 'border-[#0B3D91] bg-[#F5F5F5]' : fieldErrors.consent ? 'border-red-400' : 'border-[#E5E5E5] hover:border-[#999]'}`}>
+              <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 w-5 h-5 border-2 border-[#0B3D91] rounded focus:ring-2 focus:ring-[#0B3D91] text-[#0B3D91] cursor-pointer shrink-0" />
+              <span className="text-sm text-[#2A3E66] leading-relaxed">
+                I authorize Conduct Finance to perform a <strong>soft credit inquiry</strong> (no impact to my credit score), verify my identity, share my application data with potential Business Cash Advance lenders for the purpose of providing funding offers, and confirm that I have the authority to sign on behalf of the business as an owner with the percentage stated above. I understand a hard credit pull will only occur at the time of funding, with my separate consent.
               </span>
             </label>
             {fieldErrors.consent && <p className="text-sm text-red-600">{fieldErrors.consent}</p>}
@@ -735,7 +735,7 @@ export default function MCAApplication() {
             </div>
           )}
 
-          <button type="submit" className="w-full px-8 py-4 rounded-lg text-lg font-medium bg-[#1A1A1A] text-white hover:bg-[#333333] transition-colors duration-200">
+          <button type="submit" className="w-full px-8 py-4 rounded-lg text-lg font-medium bg-[#0B3D91] text-white hover:bg-[#0A2F72] transition-colors duration-200">
             Check Pre-Approval
           </button>
 

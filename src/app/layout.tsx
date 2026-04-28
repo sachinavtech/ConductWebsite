@@ -84,9 +84,9 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="manifest" href="/site.webmanifest" />
-        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#121212" />
-        <meta name="msapplication-TileColor" content="#121212" />
-        <meta name="theme-color" content="#121212" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#0B3D91" />
+        <meta name="msapplication-TileColor" content="#0B3D91" />
+        <meta name="theme-color" content="#0B3D91" />
         
         {/* Preconnect to external domains for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -182,7 +182,7 @@ export default function RootLayout({
           <div className="flex-1">{children}</div>
           <footer className="border-t border-[#E5E5E5]">
             <div className="max-w-5xl mx-auto px-6 py-8 text-center">
-              <p className="text-[#4A4A4A] text-sm">© 2026 Conduct Finance Inc. All rights reserved.</p>
+              <p className="text-[#2A3E66] text-sm">© 2026 Conduct Finance Inc. All rights reserved.</p>
             </div>
           </footer>
         </div>

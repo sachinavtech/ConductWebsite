@@ -3,7 +3,7 @@
 import Link from "next/link";
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white text-[#1A1A1A]">
+    <main className="min-h-screen bg-white text-[#0B3D91]">
       {/* Header */}
       <header className="w-full pt-4 pl-4 md:pt-6 md:pl-6">
         <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
@@ -15,10 +15,10 @@ export default function Home() {
       <section className="flex items-center justify-center min-h-[50vh] py-8">
         <div className="text-center max-w-3xl mx-auto px-6">
           <h1 className="text-5xl md:text-6xl font-semibold leading-tight tracking-tight mb-6">
-            The Smart Path to Merchant Cash Advance Funding.
+            The Smart Path to Business Cash Advance Funding Today.
           </h1>
 
-          <p className="text-[#4A4A4A] text-xl md:text-2xl mb-8 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-[#2A3E66] text-xl md:text-2xl mb-8 leading-relaxed max-w-2xl mx-auto">
             One short application. We verify your business, pull credit softly, and analyze your bank statements automatically, then match you with the right lender.
           </p>
         </div>
@@ -35,7 +35,7 @@ export default function Home() {
             {/* Step 1 */}
             <div className="text-center">
               <div className="mb-8">
-                <div className="w-24 h-24 bg-[#1A1A1A] rounded-full flex items-center justify-center mx-auto">
+                <div className="w-24 h-24 bg-[#0B3D91] rounded-full flex items-center justify-center mx-auto">
                   <span className="text-white text-4xl font-bold">1</span>
                 </div>
               </div>
@@ -47,7 +47,7 @@ export default function Home() {
             {/* Step 2 */}
             <div className="text-center">
               <div className="mb-8">
-                <div className="w-24 h-24 bg-[#1A1A1A] rounded-full flex items-center justify-center mx-auto">
+                <div className="w-24 h-24 bg-[#0B3D91] rounded-full flex items-center justify-center mx-auto">
                   <span className="text-white text-4xl font-bold">2</span>
                 </div>
               </div>
@@ -59,7 +59,7 @@ export default function Home() {
             {/* Step 3 */}
             <div className="text-center">
               <div className="mb-8">
-                <div className="w-24 h-24 bg-[#1A1A1A] rounded-full flex items-center justify-center mx-auto">
+                <div className="w-24 h-24 bg-[#0B3D91] rounded-full flex items-center justify-center mx-auto">
                   <span className="text-white text-4xl font-bold">3</span>
                 </div>
               </div>
@@ -73,13 +73,13 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 href="/questionnaire"
-                className="inline-block bg-[#1A1A1A] text-white px-10 py-4 rounded-lg text-lg font-medium hover:bg-[#333333] transition-colors duration-200"
+                className="inline-block bg-[#0B3D91] text-white px-10 py-4 rounded-lg text-lg font-medium hover:bg-[#0A2F72] transition-colors duration-200"
               >
-                Apply for Merchant Cash Advance Loans
+                Apply for Business Cash Advance Loans
               </Link>
               <Link
                 href="/contact"
-                className="inline-block border-2 border-[#1A1A1A] text-[#1A1A1A] px-10 py-4 rounded-lg text-lg font-medium hover:bg-[#1A1A1A] hover:text-white transition-colors duration-200"
+                className="inline-block border-2 border-[#0B3D91] text-[#0B3D91] px-10 py-4 rounded-lg text-lg font-medium hover:bg-[#0B3D91] hover:text-white transition-colors duration-200"
               >
                 Talk to the team
               </Link>
@@ -92,34 +92,34 @@ export default function Home() {
       <section className="py-20">
         <div className="max-w-5xl mx-auto px-6">
           <h2 className="text-4xl md:text-5xl font-semibold text-center mb-16">
-            Why use Conduct for Merchant Cash Advances?
+            Why use Conduct for Business Cash Advances?
           </h2>
           
           <div className="grid md:grid-cols-2 gap-12">
-            <div className="border-l-4 border-[#1A1A1A] pl-6">
+            <div className="border-l-4 border-[#0B3D91] pl-6">
               <h3 className="text-2xl font-semibold mb-4">Deposits Over FICO</h3>
-              <p className="text-[#4A4A4A] text-lg md:text-xl leading-relaxed">
+              <p className="text-[#2A3E66] text-lg md:text-xl leading-relaxed">
                 Approval is driven by your bank deposits, not your credit score. If you do $15K or more per month in deposits, you likely qualify even with a 500 to 600 FICO.
               </p>
             </div>
             
-            <div className="border-l-4 border-[#1A1A1A] pl-6">
+            <div className="border-l-4 border-[#0B3D91] pl-6">
               <h3 className="text-2xl font-semibold mb-4">Soft Pull First</h3>
-              <p className="text-[#4A4A4A] text-lg md:text-xl leading-relaxed">
+              <p className="text-[#2A3E66] text-lg md:text-xl leading-relaxed">
                 We start with a soft credit pull that does not affect your score. A hard pull only happens at final funding, and many funders approve on soft pull alone.
               </p>
             </div>
             
-            <div className="border-l-4 border-[#1A1A1A] pl-6">
+            <div className="border-l-4 border-[#0B3D91] pl-6">
               <h3 className="text-2xl font-semibold mb-4">Speed to Funding</h3>
-              <p className="text-[#4A4A4A] text-lg md:text-xl leading-relaxed">
-                Merchant Cash Advances are one of the fastest paths to capital. Many businesses receive funds within 24 to 48 hours of approval. No collateral required.
+              <p className="text-[#2A3E66] text-lg md:text-xl leading-relaxed">
+                Business Cash Advances are one of the fastest paths to capital. Many businesses receive funds within 24 to 48 hours of approval. No collateral required.
               </p>
             </div>
             
-            <div className="border-l-4 border-[#1A1A1A] pl-6">
+            <div className="border-l-4 border-[#0B3D91] pl-6">
               <h3 className="text-2xl font-semibold mb-4">Transparent Matching</h3>
-              <p className="text-[#4A4A4A] text-lg md:text-xl leading-relaxed">
+              <p className="text-[#2A3E66] text-lg md:text-xl leading-relaxed">
                 We tell you exactly why you do or do not qualify, what drives pricing, and what to improve. No black boxes, no surprises.
               </p>
             </div>
@@ -128,17 +128,17 @@ export default function Home() {
       </section>
 
       {/* Footer CTA for Lenders */}
-      <section className="py-20 bg-[#1A1A1A] text-white">
+      <section className="py-20 bg-[#0B3D91] text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl md:text-5xl font-semibold mb-6">
-            Merchant Cash Advance funders: upgrade your deal flow
+            Business Cash Advance funders: upgrade your deal flow
           </h2>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
             Integrate our scoring engine into your underwriting workflow or receive pre-scored leads directly to your CRM.
           </p>
           <Link
             href="/lender-inquiry"
-            className="inline-block bg-white text-[#1A1A1A] px-10 py-4 rounded-lg text-lg font-medium hover:bg-gray-200 transition-colors duration-200"
+            className="inline-block bg-white text-[#0B3D91] px-10 py-4 rounded-lg text-lg font-medium hover:bg-gray-200 transition-colors duration-200"
           >
             Get Started
           </Link>

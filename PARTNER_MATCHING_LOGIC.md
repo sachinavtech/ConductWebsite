@@ -113,7 +113,7 @@ The questionnaire now includes intelligent partner matching that routes SMBs to 
 
 **Match:** Credibly  
 **Product:** MCA / Working Capital  
-**Reason:** Credibly offers Merchant Cash Advances and working capital solutions that can provide faster access to funds for day-to-day needs.
+**Reason:** Credibly offers Business Cash Advances and working capital solutions that can provide faster access to funds for day-to-day needs.
 
 ---
 
@@ -179,7 +179,7 @@ The questionnaire now includes intelligent partner matching that routes SMBs to 
 - **Focus:** Daily balances and personal credit
 - **Specialties:**
   - Working Capital
-  - Merchant Cash Advances
+  - Business Cash Advances
   - Term Loans
   - B2B & B2C
 - **Industries:** Wide range of industries
