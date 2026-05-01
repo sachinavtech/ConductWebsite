@@ -431,21 +431,21 @@ export default function MCAApplication() {
     }
   };
 
-  // ── Shared header ──
-  const Logo = () => (
-    <div className="mb-8">
-      <Link href="/">
-        <img src="/logo.svg" alt="Conduct Logo" className="w-32 md:w-40 mx-auto mb-8 cursor-pointer hover:opacity-80 transition-opacity" />
+  const AppHeader = () => (
+    <header className="w-full pt-4 pl-4 md:pt-6 md:pl-6">
+      <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+        <img src="/logo.svg" alt="Conduct Logo" className="w-40 md:w-48" />
       </Link>
-    </div>
+    </header>
   );
 
   // ── DECLINED ──
   if (currentStep === "declined") {
     return (
-      <main className="flex items-center justify-center min-h-screen bg-white text-[#0B3D91] py-12">
-        <div className="text-center max-w-2xl mx-auto px-6">
-          <Logo />
+      <main className="min-h-screen bg-white text-[#0B3D91]">
+        <AppHeader />
+        <section className="flex items-center justify-center py-12">
+          <div className="text-center max-w-2xl mx-auto px-6">
           <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-6">
             We Currently Cannot Proceed
           </h1>
@@ -466,6 +466,7 @@ export default function MCAApplication() {
             </Link>
           </div>
         </div>
+        </section>
       </main>
     );
   }
@@ -473,9 +474,10 @@ export default function MCAApplication() {
   // ── SUBMITTED (final) ──
   if (currentStep === "submitted") {
     return (
-      <main className="flex items-center justify-center min-h-screen bg-white text-[#0B3D91] py-12">
-        <div className="text-center max-w-2xl mx-auto px-6">
-          <Logo />
+      <main className="min-h-screen bg-white text-[#0B3D91]">
+        <AppHeader />
+        <section className="flex items-center justify-center py-12">
+          <div className="text-center max-w-2xl mx-auto px-6">
           <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-6">
             Application Received
           </h1>
@@ -491,6 +493,7 @@ export default function MCAApplication() {
             Back to Home
           </Link>
         </div>
+        </section>
       </main>
     );
   }
@@ -498,9 +501,10 @@ export default function MCAApplication() {
   // ── PRE-APPROVED: collect bank info ──
   if (currentStep === "preapproved") {
     return (
-      <main className="flex items-center justify-center min-h-screen bg-white text-[#0B3D91] py-12">
-        <div className="w-full max-w-2xl mx-auto px-6">
-          <Logo />
+      <main className="min-h-screen bg-white text-[#0B3D91]">
+        <AppHeader />
+        <section className="flex items-center justify-center py-12">
+          <div className="w-full max-w-2xl mx-auto px-6">
 
           <div className="text-center mb-10">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -563,6 +567,12 @@ export default function MCAApplication() {
                   <p className="text-sm text-[#6F6F6F]">
                     Upload your last 3 months of business bank statements (PDF). Our system automatically extracts deposits, overdrafts, NSFs, average balances, and 20+ underwriting metrics.
                   </p>
+                <div className="rounded-lg border border-[#E5E5E5] bg-[#F9FAFB] p-4">
+                  <p className="text-sm font-medium text-[#0B3D91] mb-1">Required documents:</p>
+                  <p className="text-sm text-[#2A3E66]">
+                    Driver&apos;s license, void check, proof of EIN, and bank statements.
+                  </p>
+                </div>
                   {bankStatements.length > 0 && (
                     <div className="space-y-3">
                       {bankStatements.map((stmt, idx) => (
@@ -620,19 +630,28 @@ export default function MCAApplication() {
             <p className="text-center text-sm text-[#6F6F6F]">
               Your data is encrypted and transmitted securely. We never share your SSN with lenders.
             </p>
+            <p className="text-center text-sm text-[#6F6F6F]">
+              By continuing, you agree to our{" "}
+              <Link href="/terms-privacy" className="underline hover:text-[#0B3D91]">
+                Terms and Conditions and Privacy Policy
+              </Link>
+              .
+            </p>
           </div>
 
           {showPlaidModal && <PlaidLinkModal onSuccess={handlePlaidSuccess} onClose={() => setShowPlaidModal(false)} />}
         </div>
+        </section>
       </main>
     );
   }
 
   // ── STEP 1: Pre-approval Application Form ──
   return (
-    <main className="flex items-center justify-center min-h-screen bg-white text-[#0B3D91] py-12">
-      <div className="w-full max-w-2xl mx-auto px-6">
-        <Logo />
+    <main className="min-h-screen bg-white text-[#0B3D91]">
+      <AppHeader />
+      <section className="flex items-center justify-center py-12">
+        <div className="w-full max-w-2xl mx-auto px-6">
 
         <div className="text-center mb-10">
           <h1 className="text-3xl md:text-4xl font-semibold mb-3">
@@ -727,6 +746,12 @@ export default function MCAApplication() {
               </span>
             </label>
             {fieldErrors.consent && <p className="text-sm text-red-600">{fieldErrors.consent}</p>}
+            <div className="rounded-lg border border-[#E5E5E5] bg-[#F9FAFB] p-4">
+              <p className="text-sm font-medium text-[#0B3D91] mb-1">Required documents:</p>
+              <p className="text-sm text-[#2A3E66]">
+                Driver&apos;s license, void check, proof of EIN, and bank statements.
+              </p>
+            </div>
           </section>
 
           {error && (
@@ -742,8 +767,16 @@ export default function MCAApplication() {
           <p className="text-center text-sm text-[#6F6F6F]">
             Your data is encrypted and transmitted securely. We never share your SSN with lenders.
           </p>
+          <p className="text-center text-sm text-[#6F6F6F]">
+            By submitting, you agree to our{" "}
+            <Link href="/terms-privacy" className="underline hover:text-[#0B3D91]">
+              Terms and Conditions and Privacy Policy
+            </Link>
+            .
+          </p>
         </form>
-      </div>
+        </div>
+      </section>
     </main>
   );
 }

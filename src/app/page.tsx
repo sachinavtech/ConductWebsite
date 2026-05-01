@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 export default function Home() {
+  const calendlyUrl = process.env.NEXT_PUBLIC_CALENDLY_URL;
+  const talkHref = calendlyUrl?.trim() || "/contact";
+  const isExternalTalkLink = talkHref.startsWith("http://") || talkHref.startsWith("https://");
+
   return (
     <main className="min-h-screen bg-white text-[#0B3D91]">
       {/* Header */}
@@ -64,7 +68,7 @@ export default function Home() {
                 </div>
               </div>
               <h3 className="text-2xl md:text-3xl font-semibold mb-4">
-                Get matched and funded
+                Get Instant Funding
               </h3>
             </div>
           </div>
@@ -75,10 +79,12 @@ export default function Home() {
                 href="/questionnaire"
                 className="inline-block bg-[#0B3D91] text-white px-10 py-4 rounded-lg text-lg font-medium hover:bg-[#0A2F72] transition-colors duration-200"
               >
-                Apply for Business Cash Advance Loans
+                Apply Now
               </Link>
               <Link
-                href="/contact"
+                href={talkHref}
+                target={isExternalTalkLink ? "_blank" : undefined}
+                rel={isExternalTalkLink ? "noopener noreferrer" : undefined}
                 className="inline-block border-2 border-[#0B3D91] text-[#0B3D91] px-10 py-4 rounded-lg text-lg font-medium hover:bg-[#0B3D91] hover:text-white transition-colors duration-200"
               >
                 Talk to the team
@@ -142,6 +148,11 @@ export default function Home() {
           >
             Get Started
           </Link>
+          <div className="mt-8 text-sm text-gray-200">
+            <Link href="/terms-privacy" className="underline hover:text-white transition-colors">
+              Terms and Conditions and Privacy Policy
+            </Link>
+          </div>
         </div>
       </section>
     </main>
