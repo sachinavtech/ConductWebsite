@@ -16,15 +16,11 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="flex items-center justify-center min-h-[50vh] py-8">
+      <section className="flex items-center justify-center min-h-[35vh] py-6">
         <div className="text-center max-w-3xl mx-auto px-6">
-          <h1 className="text-5xl md:text-6xl font-semibold leading-tight tracking-tight mb-6">
-            The Smart Path to Business Cash Advance Funding Today.
+          <h1 className="text-6xl md:text-7xl font-semibold leading-tight tracking-tight mb-6">
+            The Smart Path to Instant Business Cash Advance
           </h1>
-
-          <p className="text-[#2A3E66] text-xl md:text-2xl mb-8 leading-relaxed max-w-2xl mx-auto">
-            One short application. We verify your business, pull credit softly, and analyze your bank statements automatically, then match you with the right lender.
-          </p>
         </div>
       </section>
 
