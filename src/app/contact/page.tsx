@@ -52,39 +52,41 @@ export default function Contact() {
 
   if (submitted) {
     return (
-      <main className="flex items-center justify-center min-h-screen bg-white text-[#0B3D91] py-12">
-        <div className="text-center max-w-2xl mx-auto px-6">
-          <div className="mb-8">
-            <Link href="/">
-              <img src="/logo.svg" alt="Conduct Logo" className="w-32 md:w-40 mx-auto mb-8 cursor-pointer hover:opacity-80 transition-opacity" />
+      <main className="min-h-screen bg-white text-[#0B3D91]">
+        <header className="w-full flex justify-start pt-4 pl-4 md:pt-6 md:pl-6">
+          <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+            <img src="/logo.svg" alt="Conduct Logo" className="w-40 md:w-48" />
+          </Link>
+        </header>
+        <section className="flex items-center justify-center py-12">
+          <div className="text-center max-w-2xl mx-auto px-6">
+            <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-6">
+              Message Sent!
+            </h1>
+            <p className="text-[#2A3E66] text-lg md:text-xl mb-10 leading-relaxed">
+              Thanks for reaching out. We&apos;ll get back to you as soon as possible.
+            </p>
+            <Link
+              href="/"
+              className="inline-block bg-[#0B3D91] text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#0A2F72] transition-colors duration-200"
+            >
+              Back to Home
             </Link>
           </div>
-          <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-6">
-            Message Sent!
-          </h1>
-          <p className="text-[#2A3E66] text-lg md:text-xl mb-10 leading-relaxed">
-            Thanks for reaching out. We&apos;ll get back to you as soon as possible.
-          </p>
-          <Link
-            href="/"
-            className="inline-block bg-[#0B3D91] text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-[#0A2F72] transition-colors duration-200"
-          >
-            Back to Home
-          </Link>
-        </div>
+        </section>
       </main>
     );
   }
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-white text-[#0B3D91] py-12">
-      <div className="w-full max-w-2xl mx-auto px-6">
-        <div className="mb-8">
-          <Link href="/">
-            <img src="/logo.svg" alt="Conduct Logo" className="w-32 md:w-40 mx-auto mb-8 cursor-pointer hover:opacity-80 transition-opacity" />
-          </Link>
-        </div>
-
+    <main className="min-h-screen bg-white text-[#0B3D91]">
+      <header className="w-full flex justify-start pt-4 pl-4 md:pt-6 md:pl-6">
+        <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+          <img src="/logo.svg" alt="Conduct Logo" className="w-40 md:w-48" />
+        </Link>
+      </header>
+      <section className="flex items-center justify-center py-12">
+        <div className="w-full max-w-2xl mx-auto px-6">
         <div className="text-center mb-10">
           <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-4">
             Talk to the Team
@@ -171,7 +173,8 @@ export default function Contact() {
             {isSubmitting ? "Sending..." : "Send Message"}
           </button>
         </form>
-      </div>
+        </div>
+      </section>
     </main>
   );
 }

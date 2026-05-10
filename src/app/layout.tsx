@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 import Analytics from "@/components/Analytics";
 
@@ -182,6 +183,14 @@ export default function RootLayout({
           <div className="flex-1">{children}</div>
           <footer className="border-t border-[#E5E5E5]">
             <div className="max-w-5xl mx-auto px-6 py-8 text-center">
+              <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-[#2A3E66] mb-4">
+                <Link href="/terms-privacy" className="underline hover:text-[#0B3D91]">
+                  Terms and Privacy Policy
+                </Link>
+                <Link href="/underwriting-guidelines" className="underline hover:text-[#0B3D91]">
+                  Underwriting Guidelines
+                </Link>
+              </div>
               <p className="text-[#2A3E66] text-sm">© 2026 Conduct Finance Inc. All rights reserved.</p>
             </div>
           </footer>

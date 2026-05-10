@@ -70,12 +70,20 @@ export default function Home() {
           </div>
 
           <div className="text-center">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center items-center">
               <Link
                 href="/questionnaire"
                 className="inline-block bg-[#0B3D91] text-white px-10 py-4 rounded-lg text-lg font-medium hover:bg-[#0A2F72] transition-colors duration-200"
               >
                 Apply Now
+              </Link>
+              <Link
+                href="https://www.credibly.com/conduct-finance/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block border-2 border-[#0B3D91] text-[#0B3D91] px-10 py-4 rounded-lg text-lg font-medium hover:bg-[#0B3D91] hover:text-white transition-colors duration-200"
+              >
+                Apply via Credibly
               </Link>
               <Link
                 href={talkHref}
@@ -144,9 +152,12 @@ export default function Home() {
           >
             Get Started
           </Link>
-          <div className="mt-8 text-sm text-gray-200">
+          <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-gray-200">
             <Link href="/terms-privacy" className="underline hover:text-white transition-colors">
               Terms and Conditions and Privacy Policy
+            </Link>
+            <Link href="/underwriting-guidelines" className="underline hover:text-white transition-colors">
+              Underwriting Guidelines
             </Link>
           </div>
         </div>

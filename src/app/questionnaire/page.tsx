@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { trackPrequalStart, trackCompletion } from "@/lib/analytics";
 
@@ -144,7 +144,8 @@ function validatePreApproval(
   }
 
   if (!consent) {
-    errors.consent = "You must authorize the soft credit pull and data sharing to proceed.";
+    errors.consent =
+      "You must confirm that you have read the Terms and Conditions and Privacy Policy and the Underwriting Guidelines.";
   }
 
   const hasFieldErrors = Object.keys(errors).length > 0;
@@ -158,6 +159,121 @@ function validatePreApproval(
   }
 
   return { valid: true, errors: {} };
+}
+
+type ApplicationWizardStep = 1 | 2 | 3 | 4 | 5;
+
+const WIZARD_STEP_META: { step: ApplicationWizardStep; title: string; detail: string }[] = [
+  { step: 1, title: "Business Information", detail: "EIN" },
+  { step: 2, title: "Owner Information", detail: "Legal name, SSN, ownership %" },
+  { step: 3, title: "Desired Advance Amount", detail: "Funding request" },
+  { step: 4, title: "Contact Information", detail: "Business email & phone" },
+  { step: 5, title: "Authorization", detail: "Review & submit" },
+];
+
+const WIZARD_STEP_KEYS: Record<ApplicationWizardStep, (keyof PreApprovalErrors)[]> = {
+  1: ["ein"],
+  2: ["ownerName", "ownerSSN", "ownershipPct"],
+  3: ["advanceAmount"],
+  4: ["email", "phone"],
+  5: ["consent"],
+};
+
+function validateWizardStep(
+  step: ApplicationWizardStep,
+  ein: string,
+  ownerName: string,
+  ownerSSN: string,
+  ownershipPct: string,
+  email: string,
+  phone: string,
+  advanceAmount: string,
+  consent: boolean
+): PreApprovalErrors {
+  const errors: PreApprovalErrors = {};
+
+  if (step === 1) {
+    const einDigits = ein.replace(/\D/g, "");
+    if (einDigits.length !== 9) errors.ein = "EIN must be 9 digits.";
+    if (einDigits.length === 9 && einDigits.startsWith("00")) errors.ein = "EIN cannot start with 00.";
+    return errors;
+  }
+
+  if (step === 2) {
+    if (!ownerName.trim()) {
+      errors.ownerName = "Owner legal name is required.";
+    } else if (ownerName.trim().split(/\s+/).length < 2) {
+      errors.ownerName = "Please enter your full legal name (first and last).";
+    }
+
+    const ssnDigits = ownerSSN.replace(/\D/g, "");
+    if (ssnDigits.length !== 9) errors.ownerSSN = "SSN must be 9 digits.";
+    if (ssnDigits.length === 9) {
+      if (
+        ssnDigits.startsWith("9") ||
+        ssnDigits.startsWith("000") ||
+        ssnDigits.substring(3, 5) === "00" ||
+        ssnDigits.substring(5) === "0000"
+      ) {
+        errors.ownerSSN = "Please enter a valid SSN.";
+      }
+    }
+
+    if (!ownershipPct) errors.ownershipPct = "Please select ownership percentage.";
+    return errors;
+  }
+
+  if (step === 3) {
+    const amount = parseCurrencyToNumber(advanceAmount);
+    if (!advanceAmount.trim()) {
+      errors.advanceAmount = "Please enter desired advance amount.";
+    } else if (amount < 1000) {
+      errors.advanceAmount = "Minimum advance amount is $1,000.";
+    } else if (amount > 5000000) {
+      errors.advanceAmount = "Maximum advance amount is $5,000,000.";
+    }
+    return errors;
+  }
+
+  if (step === 4) {
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.email = "Valid business email is required.";
+    }
+
+    const phoneDigits = phone.replace(/\D/g, "");
+    if (phoneDigits.length !== 10) {
+      errors.phone = "Phone must be 10 digits.";
+    } else if (phoneDigits.startsWith("0") || phoneDigits.startsWith("1")) {
+      errors.phone = "Phone number cannot start with 0 or 1.";
+    }
+    return errors;
+  }
+
+  if (step === 5) {
+    if (!consent) {
+      errors.consent =
+        "You must confirm that you have read the Terms and Conditions and Privacy Policy and the Underwriting Guidelines.";
+    }
+    return errors;
+  }
+
+  return errors;
+}
+
+function mergeWizardStepErrors(
+  prev: PreApprovalErrors,
+  step: ApplicationWizardStep,
+  stepErrors: PreApprovalErrors
+): PreApprovalErrors {
+  const next = { ...prev };
+  for (const key of WIZARD_STEP_KEYS[step]) {
+    if (stepErrors[key]) {
+      (next as Record<string, string | undefined>)[key] = stepErrors[key];
+    } else {
+      delete next[key];
+    }
+  }
+  return next;
 }
 
 // ── Simulated Plaid Link Modal ──
@@ -299,6 +415,7 @@ export default function MCAApplication() {
   const [advanceAmount, setAdvanceAmount] = useState("");
   const [consent, setConsent] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<PreApprovalErrors>({});
+  const [applicationWizardStep, setApplicationWizardStep] = useState<ApplicationWizardStep>(1);
 
   // Step 2 fields (bank info)
   const [bankMethod, setBankMethod] = useState<"plaid" | "upload">("plaid");
@@ -320,9 +437,13 @@ export default function MCAApplication() {
     }
   }, []);
 
-  // ── Step 1: Pre-approval submit ──
-  const handlePreApproval = (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (currentStep === "application") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [applicationWizardStep, currentStep]);
+
+  const runPreApprovalSubmit = () => {
     const result = validatePreApproval(ein, ownerName, ownerSSN, ownershipPct, email, phone, advanceAmount, consent);
     setFieldErrors(result.errors);
 
@@ -330,12 +451,62 @@ export default function MCAApplication() {
       if (result.declineReason) {
         setDeclineReason(result.declineReason);
         setCurrentStep("declined");
+        return;
+      }
+      const stepOrder: ApplicationWizardStep[] = [1, 2, 3, 4, 5];
+      for (const st of stepOrder) {
+        if (WIZARD_STEP_KEYS[st].some((k) => result.errors[k])) {
+          setApplicationWizardStep(st);
+          break;
+        }
       }
       return;
     }
 
     window.scrollTo({ top: 0, behavior: "smooth" });
     setCurrentStep("preapproved");
+  };
+
+  const handleWizardNext = () => {
+    const stepErrors = validateWizardStep(
+      applicationWizardStep,
+      ein,
+      ownerName,
+      ownerSSN,
+      ownershipPct,
+      email,
+      phone,
+      advanceAmount,
+      consent
+    );
+    setFieldErrors((prev) => mergeWizardStepErrors(prev, applicationWizardStep, stepErrors));
+    if (Object.keys(stepErrors).length > 0) return;
+
+    if (applicationWizardStep < 5) {
+      setApplicationWizardStep((s) => (s + 1) as ApplicationWizardStep);
+    }
+  };
+
+  const handleWizardBack = () => {
+    if (applicationWizardStep > 1) {
+      setApplicationWizardStep((s) => (s - 1) as ApplicationWizardStep);
+    }
+  };
+
+  const ownershipLabel =
+    OWNERSHIP_OPTIONS.find((option) => option.value === ownershipPct)?.label || ownershipPct || "-";
+  const maskedSsnForReview = ownerSSN
+    ? `***-**-${ownerSSN.replace(/\D/g, "").slice(-4).padStart(4, "*")}`
+    : "-";
+
+  // ── Step 1: Pre-approval submit ──
+  const handlePreApproval = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (applicationWizardStep < 5) {
+      handleWizardNext();
+      return;
+    }
+    runPreApprovalSubmit();
   };
 
   // ── Step 2: Bank info + final submit ──
@@ -567,12 +738,6 @@ export default function MCAApplication() {
                   <p className="text-sm text-[#6F6F6F]">
                     Upload your last 3 months of business bank statements (PDF). Our system automatically extracts deposits, overdrafts, NSFs, average balances, and 20+ underwriting metrics.
                   </p>
-                <div className="rounded-lg border border-[#E5E5E5] bg-[#F9FAFB] p-4">
-                  <p className="text-sm font-medium text-[#0B3D91] mb-1">Required documents:</p>
-                  <p className="text-sm text-[#2A3E66]">
-                    Driver&apos;s license, void check, proof of EIN, and bank statements.
-                  </p>
-                </div>
                   {bankStatements.length > 0 && (
                     <div className="space-y-3">
                       {bankStatements.map((stmt, idx) => (
@@ -631,11 +796,13 @@ export default function MCAApplication() {
               Your data is encrypted and transmitted securely. We never share your SSN with lenders.
             </p>
             <p className="text-center text-sm text-[#6F6F6F]">
-              By continuing, you agree to our{" "}
               <Link href="/terms-privacy" className="underline hover:text-[#0B3D91]">
                 Terms and Conditions and Privacy Policy
               </Link>
-              .
+              {" · "}
+              <Link href="/underwriting-guidelines" className="underline hover:text-[#0B3D91]">
+                Underwriting Guidelines
+              </Link>
             </p>
           </div>
 
@@ -662,97 +829,224 @@ export default function MCAApplication() {
           </p>
         </div>
 
-        <form onSubmit={handlePreApproval} className="space-y-10">
-
-          {/* Business */}
-          <section className="space-y-6">
-            <h2 className="text-xl font-semibold border-b border-[#E5E5E5] pb-2">Business</h2>
-            <div className="space-y-2">
-              <label className="block text-lg font-medium">Employer Identification Number (EIN) <span className="text-red-500">*</span></label>
-              <p className="text-sm text-[#6F6F6F]">We use your EIN to verify your business name, formation date, good standing, SIC code, and state.</p>
-              <input type="text" inputMode="numeric" value={ein} onChange={(e) => setEin(formatEIN(e.target.value))} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ein ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`} placeholder="XX-XXXXXXX" />
-              {fieldErrors.ein && <p className="text-sm text-red-600">{fieldErrors.ein}</p>}
-            </div>
-          </section>
-
-          {/* Owner */}
-          <section className="space-y-6">
-            <h2 className="text-xl font-semibold border-b border-[#E5E5E5] pb-2">Owner</h2>
-            <div className="space-y-2">
-              <label className="block text-lg font-medium">Owner Full Legal Name <span className="text-red-500">*</span></label>
-              <input type="text" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ownerName ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`} placeholder="As it appears on your ID" />
-              {fieldErrors.ownerName && <p className="text-sm text-red-600">{fieldErrors.ownerName}</p>}
-            </div>
-            <div className="space-y-2">
-              <label className="block text-lg font-medium">Social Security Number <span className="text-red-500">*</span></label>
-              <p className="text-sm text-[#6F6F6F]">Used for a soft credit pull only. No impact to your score.</p>
-              <input type="password" inputMode="numeric" autoComplete="off" value={ownerSSN} onChange={(e) => { const raw = e.target.value.replace(/\D/g, ""); if (raw.length <= 9) setOwnerSSN(formatSSN(e.target.value)); }} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg font-mono focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ownerSSN ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`} placeholder={"\u2022\u2022\u2022-\u2022\u2022-\u2022\u2022\u2022\u2022"} />
-              {fieldErrors.ownerSSN && <p className="text-sm text-red-600">{fieldErrors.ownerSSN}</p>}
-            </div>
-            <div className="space-y-2">
-              <label className="block text-lg font-medium">Ownership Percentage <span className="text-red-500">*</span></label>
-              <p className="text-sm text-[#6F6F6F]">The signing owner must typically hold 50% or more to personally guarantee.</p>
-              <select value={ownershipPct} onChange={(e) => setOwnershipPct(e.target.value)} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ownershipPct ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`}>
-                <option value="">Select ownership</option>
-                {OWNERSHIP_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-              {fieldErrors.ownershipPct && <p className="text-sm text-red-600">{fieldErrors.ownershipPct}</p>}
-            </div>
-          </section>
-
-          {/* Contact */}
-          <section className="space-y-6">
-            <h2 className="text-xl font-semibold border-b border-[#E5E5E5] pb-2">Contact</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="block text-lg font-medium">Business Email <span className="text-red-500">*</span></label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.email ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`} placeholder="you@business.com" />
-                {fieldErrors.email && <p className="text-sm text-red-600">{fieldErrors.email}</p>}
-              </div>
-              <div className="space-y-2">
-                <label className="block text-lg font-medium">Business Phone <span className="text-red-500">*</span></label>
-                <input type="tel" value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} onFocus={handleFocus} className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.phone ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`} placeholder="(555) 123-4567" />
-                {fieldErrors.phone && <p className="text-sm text-red-600">{fieldErrors.phone}</p>}
-              </div>
-            </div>
-          </section>
-
-          {/* Funding */}
-          <section className="space-y-6">
-            <h2 className="text-xl font-semibold border-b border-[#E5E5E5] pb-2">Funding</h2>
-            <div className="space-y-2">
-              <label className="block text-lg font-medium">Desired Advance Amount <span className="text-red-500">*</span></label>
-              <p className="text-sm text-[#6F6F6F]">Enter an amount between $1,000 and $5,000,000.</p>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={advanceAmount}
-                onChange={(e) => setAdvanceAmount(formatCurrency(e.target.value))}
-                onFocus={handleFocus}
-                className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.advanceAmount ? 'border-red-500 focus:ring-red-500' : 'border-[#0B3D91] focus:ring-[#0B3D91]'}`}
-                placeholder="$50,000"
-              />
-              {fieldErrors.advanceAmount && <p className="text-sm text-red-600">{fieldErrors.advanceAmount}</p>}
-            </div>
-          </section>
-
-          {/* Authorization */}
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold border-b border-[#E5E5E5] pb-2">Authorization</h2>
-            <label className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-colors ${consent ? 'border-[#0B3D91] bg-[#F5F5F5]' : fieldErrors.consent ? 'border-red-400' : 'border-[#E5E5E5] hover:border-[#999]'}`}>
-              <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 w-5 h-5 border-2 border-[#0B3D91] rounded focus:ring-2 focus:ring-[#0B3D91] text-[#0B3D91] cursor-pointer shrink-0" />
-              <span className="text-sm text-[#2A3E66] leading-relaxed">
-                I authorize Conduct Finance to perform a <strong>soft credit inquiry</strong> (no impact to my credit score), verify my identity, share my application data with potential Business Cash Advance lenders for the purpose of providing funding offers, and confirm that I have the authority to sign on behalf of the business as an owner with the percentage stated above. I understand a hard credit pull will only occur at the time of funding, with my separate consent.
-              </span>
-            </label>
-            {fieldErrors.consent && <p className="text-sm text-red-600">{fieldErrors.consent}</p>}
-            <div className="rounded-lg border border-[#E5E5E5] bg-[#F9FAFB] p-4">
-              <p className="text-sm font-medium text-[#0B3D91] mb-1">Required documents:</p>
-              <p className="text-sm text-[#2A3E66]">
-                Driver&apos;s license, void check, proof of EIN, and bank statements.
+        <form onSubmit={handlePreApproval} className="space-y-8">
+          <nav aria-label="Application progress" className="rounded-xl border border-[#E5E5E5] bg-[#FAFAFA] p-4 md:p-6">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm font-semibold text-[#0B3D91]">
+                Step {applicationWizardStep} of 5
+              </p>
+              <p className="text-sm text-[#6F6F6F]">
+                {Math.round(((applicationWizardStep - 1) / 4) * 100)}% complete
               </p>
             </div>
-          </section>
+            <div className="mb-4 h-2.5 w-full overflow-hidden rounded-full bg-[#E5E5E5]">
+              <div
+                className="h-full rounded-full bg-[#0B3D91] transition-all duration-300 ease-out"
+                style={{ width: `${Math.round(((applicationWizardStep - 1) / 4) * 100)}%` }}
+              />
+            </div>
+            <p className="mb-3 text-center text-base font-semibold text-[#0B3D91] md:text-lg">
+              {WIZARD_STEP_META.find((m) => m.step === applicationWizardStep)?.title}
+            </p>
+            <ol className="flex justify-center gap-2" aria-hidden>
+              {WIZARD_STEP_META.map(({ step }) => {
+                const done = applicationWizardStep > step;
+                const active = applicationWizardStep === step;
+                return (
+                  <li key={step}>
+                    <span
+                      className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold ${
+                        done
+                          ? "border-emerald-600 bg-emerald-600 text-white"
+                          : active
+                            ? "border-[#0B3D91] bg-[#0B3D91] text-white"
+                            : "border-[#D1D5DB] bg-white text-[#9CA3AF]"
+                      }`}
+                    >
+                      {done ? "✓" : step}
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+            {applicationWizardStep >= 4 && (
+              <p className="mt-4 text-center text-sm font-medium text-[#0B3D91]">Almost there — finish up below.</p>
+            )}
+          </nav>
+
+          <div className="min-h-[12rem] space-y-6">
+            {applicationWizardStep === 1 && (
+              <section className="space-y-6">
+                <div className="space-y-2">
+                  <label className="block text-lg font-medium">
+                    Employer Identification Number (EIN) <span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-sm text-[#6F6F6F]">
+                    We use your EIN to verify your business name, formation date, good standing, SIC code, and state.
+                  </p>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={ein}
+                    onChange={(e) => setEin(formatEIN(e.target.value))}
+                    onFocus={handleFocus}
+                    className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ein ? "border-red-500 focus:ring-red-500" : "border-[#0B3D91] focus:ring-[#0B3D91]"}`}
+                    placeholder="XX-XXXXXXX"
+                  />
+                  {fieldErrors.ein && <p className="text-sm text-red-600">{fieldErrors.ein}</p>}
+                </div>
+              </section>
+            )}
+
+            {applicationWizardStep === 2 && (
+              <section className="space-y-6">
+                <div className="space-y-2">
+                  <label className="block text-lg font-medium">Owner Full Legal Name <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={ownerName}
+                    onChange={(e) => setOwnerName(e.target.value)}
+                    onFocus={handleFocus}
+                    className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ownerName ? "border-red-500 focus:ring-red-500" : "border-[#0B3D91] focus:ring-[#0B3D91]"}`}
+                    placeholder="As it appears on your ID"
+                  />
+                  {fieldErrors.ownerName && <p className="text-sm text-red-600">{fieldErrors.ownerName}</p>}
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-lg font-medium">Social Security Number <span className="text-red-500">*</span></label>
+                  <p className="text-sm text-[#6F6F6F]">Used for a soft credit pull only. No impact to your score.</p>
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    value={ownerSSN}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, "");
+                      if (raw.length <= 9) setOwnerSSN(formatSSN(e.target.value));
+                    }}
+                    onFocus={handleFocus}
+                    className={`w-full px-4 py-3 border-2 rounded-lg text-lg font-mono focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ownerSSN ? "border-red-500 focus:ring-red-500" : "border-[#0B3D91] focus:ring-[#0B3D91]"}`}
+                    placeholder={"\u2022\u2022\u2022-\u2022\u2022-\u2022\u2022\u2022\u2022"}
+                  />
+                  {fieldErrors.ownerSSN && <p className="text-sm text-red-600">{fieldErrors.ownerSSN}</p>}
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-lg font-medium">Ownership Percentage <span className="text-red-500">*</span></label>
+                  <p className="text-sm text-[#6F6F6F]">The signing owner must typically hold 50% or more to personally guarantee.</p>
+                  <select
+                    value={ownershipPct}
+                    onChange={(e) => setOwnershipPct(e.target.value)}
+                    onFocus={handleFocus}
+                    className={`w-full px-4 py-3 border-2 rounded-lg text-lg bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.ownershipPct ? "border-red-500 focus:ring-red-500" : "border-[#0B3D91] focus:ring-[#0B3D91]"}`}
+                  >
+                    <option value="">Select ownership</option>
+                    {OWNERSHIP_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                  {fieldErrors.ownershipPct && <p className="text-sm text-red-600">{fieldErrors.ownershipPct}</p>}
+                </div>
+              </section>
+            )}
+
+            {applicationWizardStep === 3 && (
+              <section className="space-y-6">
+                <div className="space-y-2">
+                  <label className="block text-lg font-medium">Desired Advance Amount <span className="text-red-500">*</span></label>
+                  <p className="text-sm text-[#6F6F6F]">Enter an amount between $1,000 and $5,000,000.</p>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={advanceAmount}
+                    onChange={(e) => setAdvanceAmount(formatCurrency(e.target.value))}
+                    onFocus={handleFocus}
+                    className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.advanceAmount ? "border-red-500 focus:ring-red-500" : "border-[#0B3D91] focus:ring-[#0B3D91]"}`}
+                    placeholder="$50,000"
+                  />
+                  {fieldErrors.advanceAmount && <p className="text-sm text-red-600">{fieldErrors.advanceAmount}</p>}
+                </div>
+              </section>
+            )}
+
+            {applicationWizardStep === 4 && (
+              <section className="space-y-6">
+                <h2 className="text-xl font-semibold border-b border-[#E5E5E5] pb-2">Contact Information</h2>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-lg font-medium">Business Email <span className="text-red-500">*</span></label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      onFocus={handleFocus}
+                      className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.email ? "border-red-500 focus:ring-red-500" : "border-[#0B3D91] focus:ring-[#0B3D91]"}`}
+                      placeholder="you@business.com"
+                    />
+                    {fieldErrors.email && <p className="text-sm text-red-600">{fieldErrors.email}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-lg font-medium">Business Phone <span className="text-red-500">*</span></label>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(formatPhone(e.target.value))}
+                      onFocus={handleFocus}
+                      className={`w-full px-4 py-3 border-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${fieldErrors.phone ? "border-red-500 focus:ring-red-500" : "border-[#0B3D91] focus:ring-[#0B3D91]"}`}
+                      placeholder="(555) 123-4567"
+                    />
+                    {fieldErrors.phone && <p className="text-sm text-red-600">{fieldErrors.phone}</p>}
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {applicationWizardStep === 5 && (
+              <section className="space-y-4">
+                <div className="rounded-lg border border-[#E5E5E5] bg-[#FAFAFA] p-4">
+                  <p className="text-sm font-semibold text-[#0B3D91] mb-3">
+                    Review your information before submitting
+                  </p>
+                  <div className="grid gap-2 text-sm text-[#2A3E66] md:grid-cols-2">
+                    <p><span className="font-medium">EIN:</span> {ein || "-"}</p>
+                    <p><span className="font-medium">Owner Name:</span> {ownerName || "-"}</p>
+                    <p><span className="font-medium">SSN:</span> {maskedSsnForReview}</p>
+                    <p><span className="font-medium">Ownership:</span> {ownershipLabel}</p>
+                    <p><span className="font-medium">Advance Amount:</span> {advanceAmount || "-"}</p>
+                    <p><span className="font-medium">Business Email:</span> {email || "-"}</p>
+                    <p><span className="font-medium">Business Phone:</span> {phone || "-"}</p>
+                  </div>
+                </div>
+                <div
+                  className={`flex items-start gap-3 p-4 rounded-lg border-2 transition-colors ${consent ? "border-[#0B3D91] bg-[#F5F5F5]" : fieldErrors.consent ? "border-red-400" : "border-[#E5E5E5]"}`}
+                >
+                  <input
+                    id="consent-preapproval"
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                    className="mt-1 w-5 h-5 border-2 border-[#0B3D91] rounded focus:ring-2 focus:ring-[#0B3D91] text-[#0B3D91] cursor-pointer shrink-0"
+                  />
+                  <div className="text-sm text-[#2A3E66] leading-relaxed">
+                    <label htmlFor="consent-preapproval" className="cursor-pointer">
+                      I confirm that I have read the Terms and Conditions and Privacy Policy and the Underwriting Guidelines.
+                    </label>
+                    <p className="mt-2 text-sm">
+                      <Link href="/terms-privacy" className="text-[#0B3D91] underline font-medium hover:opacity-80">
+                        Terms and Conditions and Privacy Policy
+                      </Link>
+                      {" · "}
+                      <Link href="/underwriting-guidelines" className="text-[#0B3D91] underline font-medium hover:opacity-80">
+                        Underwriting Guidelines
+                      </Link>
+                    </p>
+                  </div>
+                </div>
+                {fieldErrors.consent && <p className="text-sm text-red-600">{fieldErrors.consent}</p>}
+              </section>
+            )}
+          </div>
 
           {error && (
             <div className="p-4 bg-[#FEF2F2] border-2 border-[#991B1B] rounded-lg">
@@ -760,19 +1054,47 @@ export default function MCAApplication() {
             </div>
           )}
 
-          <button type="submit" className="w-full px-8 py-4 rounded-lg text-lg font-medium bg-[#0B3D91] text-white hover:bg-[#0A2F72] transition-colors duration-200">
-            Check Pre-Approval
-          </button>
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+            {applicationWizardStep > 1 ? (
+              <button
+                type="button"
+                onClick={handleWizardBack}
+                className="w-full sm:w-auto rounded-lg border-2 border-[#0B3D91] px-8 py-3 text-lg font-medium text-[#0B3D91] transition-colors hover:bg-[#F5F5F5]"
+              >
+                Back
+              </button>
+            ) : (
+              <span className="hidden sm:block sm:w-[140px]" aria-hidden />
+            )}
+            {applicationWizardStep < 5 ? (
+              <button
+                type="button"
+                onClick={handleWizardNext}
+                className="w-full rounded-lg bg-[#0B3D91] px-8 py-4 text-lg font-medium text-white transition-colors hover:bg-[#0A2F72] sm:ml-auto sm:w-auto sm:min-w-[200px]"
+              >
+                Continue
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className="w-full rounded-lg bg-[#0B3D91] px-8 py-4 text-lg font-medium text-white transition-colors hover:bg-[#0A2F72] sm:ml-auto sm:w-auto sm:min-w-[240px]"
+              >
+                Check Pre-Approval
+              </button>
+            )}
+          </div>
 
           <p className="text-center text-sm text-[#6F6F6F]">
             Your data is encrypted and transmitted securely. We never share your SSN with lenders.
           </p>
           <p className="text-center text-sm text-[#6F6F6F]">
-            By submitting, you agree to our{" "}
             <Link href="/terms-privacy" className="underline hover:text-[#0B3D91]">
               Terms and Conditions and Privacy Policy
             </Link>
-            .
+            {" · "}
+            <Link href="/underwriting-guidelines" className="underline hover:text-[#0B3D91]">
+              Underwriting Guidelines
+            </Link>
           </p>
         </form>
         </div>
