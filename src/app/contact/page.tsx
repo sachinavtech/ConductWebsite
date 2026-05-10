@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { messageFromPossibleJsonHtmlError, parseFetchJson } from "@/lib/parseFetchJson";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -36,7 +37,7 @@ export default function Contact() {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      const data = await parseFetchJson<{ error?: string }>(response);
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to send message");
@@ -44,7 +45,7 @@ export default function Contact() {
 
       setSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(messageFromPossibleJsonHtmlError(err));
     } finally {
       setIsSubmitting(false);
     }

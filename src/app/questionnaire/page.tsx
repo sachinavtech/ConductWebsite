@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { trackPrequalStart, trackCompletion } from "@/lib/analytics";
+import { messageFromPossibleJsonHtmlError, parseFetchJson } from "@/lib/parseFetchJson";
 
 interface FileWithMeta {
   file: File;
@@ -589,14 +590,14 @@ export default function MCAApplication() {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data = await parseFetchJson<{ error?: string }>(response);
       if (!response.ok) throw new Error(data.error || "Submission failed");
 
       trackCompletion({ advance_amount: advanceAmount });
       setCurrentStep("submitted");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(messageFromPossibleJsonHtmlError(err));
     } finally {
       setIsSubmitting(false);
     }

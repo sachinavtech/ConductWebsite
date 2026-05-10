@@ -138,7 +138,14 @@ export async function sendEmailNotification(
       return { success: false, error: errorMsg };
     }
 
-    const result = await response.json() as { id?: string };
+    const okBody = await response.text();
+    let result: { id?: string };
+    try {
+      result = JSON.parse(okBody) as { id?: string };
+    } catch {
+      console.error('[EMAIL] Success status but non-JSON body:', okBody.slice(0, 300));
+      return { success: false, error: 'Unexpected response from email provider.' };
+    }
     console.log('[EMAIL] Email sent successfully - Resend ID:', result.id || 'N/A');
     return { success: true };
   } catch (error) {
@@ -157,4 +164,52 @@ export async function sendApplicationNotification(
     `MCA Application [${method}] — ${data.advanceAmount} — ${data.email}`,
     emailBody
   );
+}
+
+export interface CrediblyLeadPayload {
+  firstName: string;
+  lastName: string;
+  businessName: string;
+  email: string;
+  phone: string;
+  monthlyRevenueRange: string;
+  desiredAmount: string;
+  source: string;
+}
+
+function formatCrediblyLeadEmail(data: CrediblyLeadPayload): string {
+  const phoneDisplay =
+    data.phone.length === 10
+      ? `(${data.phone.slice(0, 3)}) ${data.phone.slice(3, 6)}-${data.phone.slice(6)}`
+      : data.phone;
+
+  return `
+New Credibly pathway lead
+
+Contact
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Name: ${data.firstName} ${data.lastName}
+Business: ${data.businessName}
+Email: ${data.email}
+Phone: ${phoneDisplay}
+
+Funding profile
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Monthly revenue (range): ${data.monthlyRevenueRange}
+Desired funding: ${data.desiredAmount}
+
+Meta
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Source: ${data.source}
+Submitted: ${new Date().toLocaleString()}
+
+Next step: merchant selected “Apply via Credibly” — follow up or confirm they completed partner flow.
+  `.trim();
+}
+
+export async function sendCrediblyLeadNotification(
+  data: CrediblyLeadPayload
+): Promise<{ success: boolean; error?: string }> {
+  const body = formatCrediblyLeadEmail(data);
+  return await sendEmailNotification(`Credibly lead — ${data.businessName} — ${data.email}`, body);
 }

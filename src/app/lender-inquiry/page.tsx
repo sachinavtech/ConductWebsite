@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { messageFromPossibleJsonHtmlError, parseFetchJson } from "@/lib/parseFetchJson";
 
 export default function LenderInquiry() {
   const [formData, setFormData] = useState({
@@ -37,7 +38,7 @@ export default function LenderInquiry() {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      const data = await parseFetchJson<{ error?: string }>(response);
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to send inquiry");
@@ -45,7 +46,7 @@ export default function LenderInquiry() {
 
       setSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(messageFromPossibleJsonHtmlError(err));
     } finally {
       setIsSubmitting(false);
     }
