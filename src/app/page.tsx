@@ -1,11 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { CrediblyLeadModal } from "@/components/CrediblyLeadModal";
 
 export default function Home() {
-  const [crediblyModalOpen, setCrediblyModalOpen] = useState(false);
   const calendlyUrl = process.env.NEXT_PUBLIC_CALENDLY_URL;
   const talkHref = calendlyUrl?.trim() || "/contact";
   const isExternalTalkLink = talkHref.startsWith("http://") || talkHref.startsWith("https://");
@@ -81,13 +78,6 @@ export default function Home() {
               >
                 Apply Now
               </Link>
-              <button
-                type="button"
-                onClick={() => setCrediblyModalOpen(true)}
-                className="inline-block border-2 border-[#0B3D91] text-[#0B3D91] px-10 py-4 rounded-lg text-lg font-medium hover:bg-[#0B3D91] hover:text-white transition-colors duration-200"
-              >
-                Apply via Credibly
-              </button>
               <Link
                 href={talkHref}
                 target={isExternalTalkLink ? "_blank" : undefined}
@@ -100,8 +90,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <CrediblyLeadModal isOpen={crediblyModalOpen} onClose={() => setCrediblyModalOpen(false)} />
 
       {/* Benefits Section */}
       <section className="py-20">

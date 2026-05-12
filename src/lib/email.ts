@@ -16,10 +16,18 @@ interface BankDataUpload {
   bankStatements: { fileName: string; month: string; year: string; sizeKB: number }[];
 }
 
-type BankData = BankDataPlaid | BankDataUpload;
+interface BankDataNone {
+  method: "none";
+}
+
+type BankData = BankDataPlaid | BankDataUpload | BankDataNone;
 
 interface ApplicationData {
   ein: string;
+  businessLegalName: string;
+  businessBankAccount: string;
+  timeInBusiness: string;
+  monthlyDeposits: string;
   ownerName: string;
   ownershipPercentage: string;
   email: string;
@@ -27,9 +35,16 @@ interface ApplicationData {
   advanceAmount: string;
   bankData: BankData;
   consentTimestamp: string;
+  /** Unique id sent to Credibly HubSpot as subpublisherid */
+  crediblyLeadId?: string;
 }
 
 function formatBankSection(bankData: BankData): string {
+  if (bankData.method === "none") {
+    return `Bank details
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Not collected in this online flow — team may follow up if needed.`;
+  }
   if (bankData.method === 'plaid') {
     const accounts = bankData.plaidAccounts
       .map(a => `  ${a.institution} — ${a.name} (...${a.mask}) — ${a.monthsCovered} months of history`)
@@ -60,7 +75,12 @@ Phone: ${data.phone}
 
 Business
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Legal name: ${data.businessLegalName}
 EIN: ${data.ein.replace(/(\d{2})(\d+)/, '$1-$2')}
+Business bank account: ${data.businessBankAccount}
+Time in business: ${data.timeInBusiness}
+Avg. monthly deposits: ${data.monthlyDeposits}
+${data.crediblyLeadId ? `Credibly / HubSpot lead id: ${data.crediblyLeadId}\n` : ''}
 
 Owner
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -83,9 +103,7 @@ Next Steps
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 → Business verification via EIN
 → Soft credit pull via SSN
-→ ${data.bankData.method === 'plaid' ? 'Plaid bank account analysis' : 'Bank statement analysis via Ocrolus'}
-→ Match to lender network based on advance size + profile
-
+${data.bankData.method === "none" ? "→ Conduct team will review your application and reach out.\n" : `→ ${data.bankData.method === 'plaid' ? 'Plaid bank account analysis' : 'Bank statement analysis via Ocrolus'}\n→ Match to lender network based on advance size + profile\n`}
 Submitted: ${new Date().toLocaleString()}
   `.trim();
 }
@@ -158,7 +176,8 @@ export async function sendEmailNotification(
 export async function sendApplicationNotification(
   data: ApplicationData
 ): Promise<{ success: boolean; error?: string }> {
-  const method = data.bankData.method === 'plaid' ? 'Plaid' : 'Upload';
+  const method =
+    data.bankData.method === "none" ? "Application" : data.bankData.method === "plaid" ? "Plaid" : "Upload";
   const emailBody = formatApplicationEmail(data);
   return await sendEmailNotification(
     `MCA Application [${method}] — ${data.advanceAmount} — ${data.email}`,
@@ -166,50 +185,3 @@ export async function sendApplicationNotification(
   );
 }
 
-export interface CrediblyLeadPayload {
-  firstName: string;
-  lastName: string;
-  businessName: string;
-  email: string;
-  phone: string;
-  monthlyRevenueRange: string;
-  desiredAmount: string;
-  source: string;
-}
-
-function formatCrediblyLeadEmail(data: CrediblyLeadPayload): string {
-  const phoneDisplay =
-    data.phone.length === 10
-      ? `(${data.phone.slice(0, 3)}) ${data.phone.slice(3, 6)}-${data.phone.slice(6)}`
-      : data.phone;
-
-  return `
-New Credibly pathway lead
-
-Contact
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Name: ${data.firstName} ${data.lastName}
-Business: ${data.businessName}
-Email: ${data.email}
-Phone: ${phoneDisplay}
-
-Funding profile
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Monthly revenue (range): ${data.monthlyRevenueRange}
-Desired funding: ${data.desiredAmount}
-
-Meta
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Source: ${data.source}
-Submitted: ${new Date().toLocaleString()}
-
-Next step: merchant selected “Apply via Credibly” — follow up or confirm they completed partner flow.
-  `.trim();
-}
-
-export async function sendCrediblyLeadNotification(
-  data: CrediblyLeadPayload
-): Promise<{ success: boolean; error?: string }> {
-  const body = formatCrediblyLeadEmail(data);
-  return await sendEmailNotification(`Credibly lead — ${data.businessName} — ${data.email}`, body);
-}
