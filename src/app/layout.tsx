@@ -190,6 +190,9 @@ export default function RootLayout({
                 <Link href="/underwriting-guidelines" className="underline hover:text-[#0B3D91]">
                   Underwriting Guidelines
                 </Link>
+                <Link href="/blog" className="underline hover:text-[#0B3D91]">
+                  Blog
+                </Link>
               </div>
               <p className="text-[#2A3E66] text-sm">© 2026 Conduct Finance Inc. All rights reserved.</p>
             </div>

@@ -917,6 +917,10 @@ export default function MCAApplication() {
             <Link href="/underwriting-guidelines" className="underline hover:text-[#0B3D91]">
               Underwriting Guidelines
             </Link>
+            {" · "}
+            <Link href="/blog" className="underline hover:text-[#0B3D91]">
+              Blog
+            </Link>
           </p>
         </form>
         </div>

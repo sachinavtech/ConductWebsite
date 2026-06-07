@@ -10,9 +10,15 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-[#0B3D91]">
       {/* Header */}
-      <header className="w-full pt-4 pl-4 md:pt-6 md:pl-6">
+      <header className="w-full pt-4 px-4 md:pt-6 md:px-6 flex items-center justify-between">
         <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
           <img src="/logo.svg" alt="Conduct Logo" className="w-40 md:w-48" />
+        </Link>
+        <Link
+          href="/blog"
+          className="text-lg md:text-xl font-semibold text-[#0B3D91] underline hover:opacity-80 transition-opacity"
+        >
+          Blog
         </Link>
       </header>
 
@@ -145,12 +151,15 @@ export default function Home() {
           >
             Get Started
           </Link>
-          <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-gray-200">
+          <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-base text-gray-200">
             <Link href="/terms-privacy" className="underline hover:text-white transition-colors">
               Terms and Conditions and Privacy Policy
             </Link>
             <Link href="/underwriting-guidelines" className="underline hover:text-white transition-colors">
               Underwriting Guidelines
+            </Link>
+            <Link href="/blog" className="underline hover:text-white transition-colors">
+              Blog
             </Link>
           </div>
         </div>
