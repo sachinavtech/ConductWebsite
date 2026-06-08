@@ -95,6 +95,19 @@ export default function RootLayout({
         {/* DNS Prefetch for common external resources */}
         <link rel="dns-prefetch" href="//www.google-analytics.com" />
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
+
+        {/* Google tag (gtag.js) */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-7YFDXVY3Q9" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-7YFDXVY3Q9');
+            `,
+          }}
+        />
         
         {/* Google Tag Manager */}
         {process.env.NEXT_PUBLIC_GTM_ID && (
