@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const markdownComponents = {
   h2: ({ children }: { children?: React.ReactNode }) => (
@@ -37,8 +38,8 @@ const markdownComponents = {
     );
   },
   table: ({ children }: { children?: React.ReactNode }) => (
-    <div className="overflow-x-auto mb-8">
-      <table className="w-full border-collapse text-left text-[#2A3E66]">{children}</table>
+    <div className="overflow-x-auto mb-8 rounded-lg border border-[#E5E5E5]">
+      <table className="w-full border-collapse text-left text-[#444]">{children}</table>
     </div>
   ),
   thead: ({ children }: { children?: React.ReactNode }) => (
@@ -61,7 +62,9 @@ const markdownComponents = {
 export default function BlogMarkdown({ content }: { content: string }) {
   return (
     <article className="blog-prose">
-      <ReactMarkdown components={markdownComponents}>{content}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+        {content}
+      </ReactMarkdown>
     </article>
   );
 }
